@@ -1,3 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <declare-styleable name="TabsContainer">
+        <attr name="tabTextSize" format="dimension"/>
+        <attr name="tabTextColor" format="color"/>
+        <attr name="tabSelectedTextColor" format="color"/>
+        <attr name="tabPadding" format="dimension"/>
+        <attr name="tabPaddingStart" format="dimension"/>
+        <attr name="tabPaddingTop" format="dimension"/>
+        <attr name="tabPaddingEnd" format="dimension"/>
+        <attr name="tabPaddingBottom" format="dimension"/>
+        <attr name="tabMinWidth" format="dimension"/>
+        <attr name="tabMaxWidth" format="dimension"/>
+        <attr name="tabBackground" format="reference"/>
+        <attr name="indicatorColor" format="reference"/>
+        <attr name="indicatorHeight" format="dimension"/>
+        <attr name="indicatorAnimDuration" format="integer"/>
+        <attr name="operationIcon" format="reference"/>
+        <attr name="operationRotateAngle" format="float"/>
+        <attr name="operationAnimDuration" format="integer"/>
+    </declare-styleable>
 </resources>
