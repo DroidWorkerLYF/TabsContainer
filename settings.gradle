@@ -1,1 +1,1 @@
-include ':app', ':tabscontainer'
+include ':app', ':tabscontainer', ':flowlayout'

@@ -30,7 +30,8 @@ import android.widget.TextView;
  * @author luoyanfeng@le.com
  */
 
-public class TabsContainer extends FrameLayout implements TabLayout {
+public class TabsContainer extends FrameLayout {
+    // TODO 支持ViewPager，支持传入一个Adapter是的自定义布局更灵活，考虑标准布局也支持使用Adapter。
     private static final String EMPTY_TITLE = "";
     private static final int DEFAULT_POSITION = 0;
     private float mTabTextSize;
@@ -167,68 +168,61 @@ public class TabsContainer extends FrameLayout implements TabLayout {
         });
     }
 
-    @Override
     public void setTitles(List<String> titles) {
         mItemList = ListConverter.onlyTitle(titles);
         mTabLayoutAdapter.notifyDataSetChanged();
     }
 
-    @Override
     public void setIcons(List<Drawable> icons) {
         mItemList = ListConverter.onlyIcon(icons);
         mTabLayoutAdapter.notifyDataSetChanged();
     }
 
-    @Override
     public void setTitlesAndIcons(List<String> titles, List<Drawable> icons) {
         mItemList = ListConverter.toList(titles, icons);
         mTabLayoutAdapter.notifyDataSetChanged();
     }
 
-    @Override
     public String getTitle(int position) {
         return EMPTY_TITLE;
     }
 
-    @Override
     public void scrollToTab(int tabPosition) {
         onChange(tabPosition);
     }
 
-    @Override
+    public void setTabBackground(int resId) {
+        mTabBackgroundResId = resId;
+        mTabLayoutAdapter.notifyDataSetChanged();
+    }
+
     public void setIndicatorColor(int color) {
         mIndicatorColor = color;
         mIndicator.setBackgroundColor(color);
     }
 
-    @Override
     public void setIndicatorHeight(int height) {
         mIndicatorHeight = height;
         mIndicator.getLayoutParams().height = height;
         mIndicator.invalidate();
     }
 
-    @Override
     public void reset() {
         onChange(DEFAULT_POSITION);
     }
 
-    @Override
     public void setOnChangeListener(OnChangeListener onChangeListener) {
         mOnChangeListener = onChangeListener;
     }
 
-    @Override
     public void removeOnChangeListener() {
         mOnChangeListener = null;
     }
 
-    @Override
     public void setOnOperateListener(onOperateListener operateListener) {
         mOnOperateListener = operateListener;
     }
 
-    @Override
     public void removeOnOperateListener() {
         mOnOperateListener = null;
     }
@@ -443,5 +437,15 @@ public class TabsContainer extends FrameLayout implements TabLayout {
                 mIconView.setImageDrawable(icon);
             }
         }
+    }
+
+    public interface OnChangeListener {
+
+        void onChange(int position, String title);
+    }
+
+    public interface onOperateListener {
+
+        void onOperate(boolean isOpen);
     }
 }

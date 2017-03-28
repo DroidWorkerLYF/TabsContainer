@@ -39,6 +39,10 @@
             app:operationAnimDuration="300"
             app:operationIcon="@drawable/ic_expand_more_24dp"/>
 
+        <com.droidworker.flowlayout.FlowLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager

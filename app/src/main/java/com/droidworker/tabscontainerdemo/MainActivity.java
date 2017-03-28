@@ -36,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
 
+    private List<String> mList = new ArrayList<>();
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -74,19 +76,26 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabsContainer tabLayout = (TabsContainer) findViewById(R.id.tabs_container);
-        List<String> list = new ArrayList<>();
-        list.add("推荐");
-        list.add("电影");
-        list.add("电视剧");
-        list.add("动漫");
-        list.add("综艺");
-        list.add("资讯");
-        list.add("音乐");
-        list.add("纪录片");
-        list.add("会员");
-        list.add("排行榜");
-        list.add("专题");
-        tabLayout.setTitles(list);
+        mList.add("推荐");
+        mList.add("电影");
+        mList.add("电视剧");
+        mList.add("动漫");
+        mList.add("综艺");
+        mList.add("资讯");
+        mList.add("音乐");
+        mList.add("纪录片");
+        mList.add("会员");
+        mList.add("排行榜");
+        mList.add("专题");
+        tabLayout.setTitles(mList);
+        mSectionsPagerAdapter.notifyDataSetChanged();
+
+        tabLayout.setOnChangeListener(new TabsContainer.OnChangeListener() {
+            @Override
+            public void onChange(int position, String title) {
+                mViewPager.setCurrentItem(position, true);
+            }
+        });
     }
 
     /**
@@ -98,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
+        private static final String ARG_SECTION_TITLE = "section_title";
 
         public PlaceholderFragment() {
         }
@@ -106,10 +116,11 @@ public class MainActivity extends AppCompatActivity {
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
+        public static PlaceholderFragment newInstance(int sectionNumber, String title) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            args.putString(ARG_SECTION_TITLE, title);
             fragment.setArguments(args);
             return fragment;
         }
@@ -119,8 +130,9 @@ public class MainActivity extends AppCompatActivity {
                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(
-                    getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            textView.setText(String.format(getString(R.string.section_format),
+                    getArguments().getInt(ARG_SECTION_NUMBER),
+                    getArguments().getString(ARG_SECTION_TITLE)));
             return rootView;
         }
     }
@@ -131,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -139,26 +151,18 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            return PlaceholderFragment.newInstance(position + 1, getPageTitle(position).toString());
         }
 
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 3;
+            return mList.size();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-            case 0:
-                return "SECTION 1";
-            case 1:
-                return "SECTION 2";
-            case 2:
-                return "SECTION 3";
-            }
-            return null;
+            return mList.get(position);
         }
     }
 }
