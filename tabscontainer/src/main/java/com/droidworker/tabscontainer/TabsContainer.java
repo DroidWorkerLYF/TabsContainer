@@ -137,18 +137,18 @@ public class TabsContainer extends FrameLayout {
             mOpView.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (mOnOperateListener != null) {
-                        mOnOperateListener.onOperate(mIsOpen);
-                    }
-                    float startAngle = mIsOpen ? mOpRotateAngle : 0;
-                    float endAngle = mIsOpen ? 0 : mOpRotateAngle;
+                    mIsOpen = !mIsOpen;
+                    float startAngle = mIsOpen ? 0 : mOpRotateAngle;
+                    float endAngle = mIsOpen ? mOpRotateAngle : 0;
                     Animation animation = new RotateAnimation(startAngle, endAngle,
                             mOpView.getPivotX(), mOpView.getPivotY());
                     animation.setDuration(mOpAnimDuration);
                     animation.setFillAfter(true);
                     animation.setFillBefore(true);
                     mOpView.startAnimation(animation);
-                    mIsOpen = !mIsOpen;
+                    if (mOnOperateListener != null) {
+                        mOnOperateListener.onOperate(mIsOpen);
+                    }
                 }
             });
         }
@@ -204,7 +204,7 @@ public class TabsContainer extends FrameLayout {
     public void setIndicatorHeight(int height) {
         mIndicatorHeight = height;
         mIndicator.getLayoutParams().height = height;
-        mIndicator.invalidate();
+        mIndicator.requestLayout();
     }
 
     public void reset() {

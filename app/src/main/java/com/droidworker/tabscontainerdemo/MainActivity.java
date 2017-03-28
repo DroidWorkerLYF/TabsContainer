@@ -3,6 +3,7 @@ package com.droidworker.tabscontainerdemo;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.droidworker.flowlayout.FlowLayout;
 import com.droidworker.tabscontainer.TabsContainer;
 
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-
+    private TabsContainer mTabLayout;
     private List<String> mList = new ArrayList<>();
 
     @Override
@@ -75,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        TabsContainer tabLayout = (TabsContainer) findViewById(R.id.tabs_container);
+        mTabLayout = (TabsContainer) findViewById(R.id.tabs_container);
         mList.add("推荐");
         mList.add("电影");
         mList.add("电视剧");
@@ -87,15 +89,31 @@ public class MainActivity extends AppCompatActivity {
         mList.add("会员");
         mList.add("排行榜");
         mList.add("专题");
-        tabLayout.setTitles(mList);
+        mTabLayout.setTitles(mList);
         mSectionsPagerAdapter.notifyDataSetChanged();
 
-        tabLayout.setOnChangeListener(new TabsContainer.OnChangeListener() {
+        mTabLayout.setOnChangeListener(new TabsContainer.OnChangeListener() {
             @Override
             public void onChange(int position, String title) {
                 mViewPager.setCurrentItem(position, true);
             }
         });
+        mTabLayout.setOnOperateListener(new TabsContainer.onOperateListener() {
+            @Override
+            public void onOperate(boolean isOpen) {
+                Toast.makeText(getApplicationContext(), String.valueOf(isOpen), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        FlowLayout flowLayout = (FlowLayout) findViewById(R.id.flow_layout);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        mTabLayout.removeOnChangeListener();
+        mTabLayout.removeOnOperateListener();
     }
 
     /**

@@ -40,6 +40,7 @@
             app:operationIcon="@drawable/ic_expand_more_24dp"/>
 
         <com.droidworker.flowlayout.FlowLayout
+            android:id="@+id/flow_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
