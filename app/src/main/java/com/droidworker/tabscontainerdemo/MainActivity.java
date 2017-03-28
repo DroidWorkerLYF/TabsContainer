@@ -19,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -102,8 +101,6 @@ public class MainActivity extends AppCompatActivity {
         mTabLayout.setOnOperateListener(new TabsContainer.onOperateListener() {
             @Override
             public void onOperate(boolean isOpen) {
-                Toast.makeText(getApplicationContext(), String.valueOf(isOpen), Toast.LENGTH_SHORT)
-                        .show();
                 mTagFlowLayout.setVisibility(isOpen ? View.VISIBLE : View.GONE);
                 mTagFlowLayout.setTags(mTabLayout.getVisibleTitles());
             }
