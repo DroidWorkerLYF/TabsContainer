@@ -231,7 +231,7 @@ public class TabsContainer extends FrameLayout {
     public List<String> getVisibleTitles() {
         LinearLayoutManager linearLayoutManager = (LinearLayoutManager) mRecyclerView
                 .getLayoutManager();
-        int start = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+        int start = linearLayoutManager.findLastVisibleItemPosition();
         int end = mItemList.size();
         if(start < end){
             start = start + 1;
