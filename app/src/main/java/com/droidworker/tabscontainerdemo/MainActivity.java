@@ -1,11 +1,6 @@
 package com.droidworker.tabscontainerdemo;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.droidworker.flowlayout.TagFlowLayout;
-import com.droidworker.tabscontainer.TabsContainer;
-
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -19,6 +14,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.droidworker.flowlayout.TagAdapter;
+import com.droidworker.flowlayout.TagFlowLayout;
+import com.droidworker.tabscontainer.TabsContainer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     private TabsContainer mTabLayout;
     private TagFlowLayout mTagFlowLayout;
     private List<String> mList = new ArrayList<>();
+    private List<String> mTags = new ArrayList<>();
+    private TagAdapter mTagAdapter;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -96,17 +100,46 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChange(int position, String title) {
                 mViewPager.setCurrentItem(position, true);
+                mTagFlowLayout.setVisibility(View.GONE);
             }
         });
         mTabLayout.setOnOperateListener(new TabsContainer.onOperateListener() {
             @Override
             public void onOperate(boolean isOpen) {
-                mTagFlowLayout.setVisibility(isOpen ? View.VISIBLE : View.GONE);
-                mTagFlowLayout.setTags(mTabLayout.getVisibleTitles());
+                List<String> list = mTabLayout.getVisibleTitles();
+                if(list.size() != 0){
+                    mTags.clear();
+                    mTags = list;
+                    mTagFlowLayout.update();
+                    mTagFlowLayout.setVisibility(isOpen ? View.VISIBLE : View.GONE);
+                } else {
+                    mTabLayout.finishOperate();
+                }
             }
         });
 
         mTagFlowLayout = (TagFlowLayout) findViewById(R.id.flow_layout);
+        mTagAdapter = new TagAdapter() {
+            @Override
+            public View getView(ViewGroup parent, final int position) {
+                TextView textView = new TextView(parent.getContext());
+                textView.setText(mTags.get(position));
+                textView.setTextColor(Color.LTGRAY);
+                textView.setTextSize(16);
+                textView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                });
+                return textView;
+            }
+
+            @Override
+            public int getSize() {
+                return mTags.size();
+            }
+        };
+        mTagFlowLayout.setTagAdapter(mTagAdapter);
     }
 
     @Override

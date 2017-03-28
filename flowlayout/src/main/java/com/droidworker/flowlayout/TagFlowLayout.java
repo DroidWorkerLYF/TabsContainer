@@ -1,13 +1,12 @@
 package com.droidworker.flowlayout;
 
-import java.util.List;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
-import android.util.TypedValue;
-import android.widget.TextView;
+import android.view.View;
+
+import java.util.List;
 
 /**
  * @author luoyanfeng@le.com
@@ -21,6 +20,7 @@ public class TagFlowLayout extends FlowLayout {
     private int mTextColor;
     private int mTextSize;
     private int mTagBackgroundResId;
+    private TagAdapter mTagAdapter;
     private List<String> mTags;
 
     public TagFlowLayout(Context context) {
@@ -54,29 +54,25 @@ public class TagFlowLayout extends FlowLayout {
         typedArray.recycle();
     }
 
-    public void setTags(List<String> tags) {
-        mTags = tags;
+    public void setTagAdapter(TagAdapter tagAdapter) {
+        mTagAdapter = tagAdapter;
         update();
     }
 
-    private void update() {
-        if(getChildCount() > 0){
+    public void update() {
+        if (getChildCount() > 0) {
             removeAllViews();
         }
 
-        List<String> tags = mTags;
-        for (String tag : tags) {
-            TextView textView = new TextView(getContext());
+        int size = mTagAdapter.getSize();
+        for(int i=0;i<size;i++){
+            View view = mTagAdapter.getView(this, i);
             MarginLayoutParams marginLayoutParams = (MarginLayoutParams) generateDefaultLayoutParams();
             marginLayoutParams.leftMargin = mLeftMargin;
             marginLayoutParams.topMargin = mTopMargin;
             marginLayoutParams.rightMargin = mEndMargin;
             marginLayoutParams.bottomMargin = mBottomMargin;
-            textView.setText(tag);
-            textView.setTextColor(mTextColor);
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize);
-            textView.setBackgroundResource(mTagBackgroundResId);
-            addView(textView, marginLayoutParams);
+            addView(view, marginLayoutParams);
         }
     }
 }

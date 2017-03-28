@@ -1,9 +1,5 @@
 package com.droidworker.tabscontainer;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -26,6 +22,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author luoyanfeng@le.com
@@ -206,6 +206,10 @@ public class TabsContainer extends FrameLayout {
         mIndicatorHeight = height;
         mIndicator.getLayoutParams().height = height;
         mIndicator.requestLayout();
+    }
+
+    public void finishOperate(){
+
     }
 
     public void reset() {
