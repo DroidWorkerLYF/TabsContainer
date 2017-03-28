@@ -3,7 +3,7 @@ package com.droidworker.tabscontainerdemo;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.droidworker.flowlayout.FlowLayout;
+import com.droidworker.flowlayout.TagFlowLayout;
 import com.droidworker.tabscontainer.TabsContainer;
 
 import android.os.Bundle;
@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
     private TabsContainer mTabLayout;
+    private TagFlowLayout mTagFlowLayout;
     private List<String> mList = new ArrayList<>();
 
     @Override
@@ -101,11 +102,14 @@ public class MainActivity extends AppCompatActivity {
         mTabLayout.setOnOperateListener(new TabsContainer.onOperateListener() {
             @Override
             public void onOperate(boolean isOpen) {
-                Toast.makeText(getApplicationContext(), String.valueOf(isOpen), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), String.valueOf(isOpen), Toast.LENGTH_SHORT)
+                        .show();
+                mTagFlowLayout.setVisibility(isOpen ? View.VISIBLE : View.GONE);
+                mTagFlowLayout.setTags(mTabLayout.getVisibleTitles());
             }
         });
 
-        FlowLayout flowLayout = (FlowLayout) findViewById(R.id.flow_layout);
+        mTagFlowLayout = (TagFlowLayout) findViewById(R.id.flow_layout);
     }
 
     @Override

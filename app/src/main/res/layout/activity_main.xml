@@ -39,47 +39,18 @@
             app:operationAnimDuration="300"
             app:operationIcon="@drawable/ic_expand_more_24dp"/>
 
-        <com.droidworker.flowlayout.FlowLayout
+        <com.droidworker.flowlayout.TagFlowLayout
             android:id="@+id/flow_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:tagTextSize="16sp"
+            app:tagLeftMargin="12dp"
+            app:tagRightMargin="12dp"
+            app:tagTopMargin="10dp"
+            app:tagBottomMargin="10dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TEST"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TEST-TEST"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TEST-TEST-TEST"
-                android:layout_marginStart="30dp"
-                android:layout_marginTop="30dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TEST-TEST"
-                android:layout_marginStart="40dp"
-                android:layout_marginTop="20dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TEST-TEST-TEST-TEST"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"/>
-
-        </com.droidworker.flowlayout.FlowLayout>
+        </com.droidworker.flowlayout.TagFlowLayout>
 
     </android.support.design.widget.AppBarLayout>
 

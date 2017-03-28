@@ -1,5 +1,6 @@
 package com.droidworker.tabscontainer;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -225,6 +226,22 @@ public class TabsContainer extends FrameLayout {
 
     public void removeOnOperateListener() {
         mOnOperateListener = null;
+    }
+
+    public List<String> getVisibleTitles() {
+        LinearLayoutManager linearLayoutManager = (LinearLayoutManager) mRecyclerView
+                .getLayoutManager();
+        int start = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+        int end = mItemList.size();
+        if(start < end){
+            start = start + 1;
+        }
+        List<TabItem> tabItems = mItemList.subList(start, end);
+        List<String> titles = new ArrayList<>();
+        for (TabItem tabItem : tabItems) {
+            titles.add(tabItem.getTitle());
+        }
+        return titles;
     }
 
     private void onChange(int position) {

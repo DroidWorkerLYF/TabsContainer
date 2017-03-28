@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="TagFlowLayout">
+        <attr name="tagMargin" format="dimension"/>
+        <attr name="tagLeftMargin" format="dimension"/>
+        <attr name="tagTopMargin" format="dimension"/>
+        <attr name="tagRightMargin" format="dimension"/>
+        <attr name="tagBottomMargin" format="dimension"/>
+        <attr name="tagTextColor" format="color"/>
+        <attr name="tagTextSize" format="dimension"/>
+        <attr name="tagBackground" format="reference"/>
+    </declare-styleable>
+</resources>
