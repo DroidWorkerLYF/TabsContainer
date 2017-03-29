@@ -43,6 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
+            app:tagTopMargin="10dp"
             app:tagBottomMargin="10dp"
             app:tagLeftMargin="12dp"
             app:tagRightMargin="12dp">

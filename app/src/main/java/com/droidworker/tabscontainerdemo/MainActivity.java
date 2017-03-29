@@ -89,6 +89,9 @@ public class MainActivity extends AppCompatActivity {
         list.add("会员");
         list.add("排行榜");
         list.add("专题");
+        list.add("专题2");
+        list.add("专题3");
+        list.add("专题4");
 
         mTitleTabs = (TabsContainer) findViewById(R.id.title_tabs_container);
         mTagFlowLayout = (TagFlowLayout) findViewById(R.id.flow_layout);
@@ -111,14 +114,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onOperate(boolean isOpen) {
                 List<String> list = mTitleTabs.getVisibleTitles();
-                if (list.size() != 0) {
                     mTags.clear();
                     mTags = list;
                     mTagFlowLayout.update();
                     mTagFlowLayout.setVisibility(isOpen ? View.VISIBLE : View.GONE);
-                } else {
-                    mTitleTabs.operationDone();
-                }
             }
         });
 
