@@ -9,11 +9,11 @@ import android.view.ViewGroup;
 
 public abstract class TagAdapter {
 
-    public abstract View getView(ViewGroup parent, int position);
+    public abstract View getItemView(ViewGroup parent, View convertView, int position);
 
     public abstract int getSize();
 
-    public int getViewType(int position) {
+    public int getItemViewType(int position) {
         return 0;
     }
 

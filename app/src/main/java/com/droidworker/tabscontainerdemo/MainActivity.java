@@ -24,6 +24,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = MainActivity.class.getSimpleName();
@@ -123,25 +124,45 @@ public class MainActivity extends AppCompatActivity {
 
         TagAdapter tagAdapter = new TagAdapter() {
             @Override
-            public View getView(ViewGroup parent, final int position) {
-                TextView textView = new TextView(parent.getContext());
-                textView.setText(mTags.get(position));
-                textView.setTextColor(Color.LTGRAY);
-                textView.setTextSize(16);
-                textView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        int targetPos = mTitleTabs.getLastVisibleTabPosition() + position + 1;
-                        mTitleTabs.scrollToTab(targetPos);
-                        mTitleTabs.operationDone();
-                    }
-                });
+            public View getItemView(ViewGroup parent, View convertView, final int position) {
+                if (convertView == null) {
+                    Log.d(TAG, "create new " + position);
+                    convertView = new TextView(parent.getContext());
+                    convertView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            int pos = (int) v.getTag();
+                            if(getItemViewType(pos) == 0){
+                                int targetPos = mTitleTabs.getLastVisibleTabPosition() + pos + 1;
+                                mTitleTabs.scrollToTab(targetPos);
+                            } else {
+                                mTagFlowLayout.setVisibility(View.GONE);
+                                Toast.makeText(v.getContext(), "Click add", Toast.LENGTH_SHORT).show();
+                            }
+                            mTitleTabs.operationDone();
+                        }
+                    });
+                }
+                TextView textView = (TextView) convertView;
+                if (getItemViewType(position) == 0) {
+                    textView.setText(mTags.get(position));
+                    textView.setTextColor(Color.LTGRAY);
+                    textView.setTextSize(16);
+                } else {
+                    textView.setBackgroundResource(R.drawable.ic_add_white_24dp);
+                }
+                convertView.setTag(position);
                 return textView;
             }
 
             @Override
             public int getSize() {
-                return mTags.size();
+                return mTags.size() + 1;
+            }
+
+            @Override
+            public int getItemViewType(int position) {
+                return position == getSize() - 1 ? 1 : super.getItemViewType(position);
             }
         };
         mTagFlowLayout.setTagAdapter(tagAdapter);

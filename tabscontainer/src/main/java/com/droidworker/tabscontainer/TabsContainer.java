@@ -159,10 +159,12 @@ public class TabsContainer extends FrameLayout {
             @Override
             public void run() {
                 if (mOpView != null) {
-                    mRecyclerView.setPadding(mRecyclerView.getPaddingLeft(),
-                            mRecyclerView.getPaddingTop(),
-                            mRecyclerView.getPaddingRight() + mOpView.getWidth(),
-                            mRecyclerView.getPaddingBottom());
+                    // setPadding(getPaddingLeft(), getPaddingTop(),
+                    // getPaddingRight() + mOpView.getWidth(), getPaddingBottom());
+                    FrameLayout.LayoutParams layoutParams = (LayoutParams) mRecyclerView
+                            .getLayoutParams();
+                    layoutParams.rightMargin = mOpView.getWidth();
+                    mRecyclerView.requestLayout();
                 }
 
                 moveIndicator(false);
@@ -208,23 +210,31 @@ public class TabsContainer extends FrameLayout {
         return mSelectedPosition;
     }
 
-    public void scrollToTab(int tabPosition) {
+    public void scrollToTab(final int tabPosition) {
         RecyclerView.ViewHolder targetViewHolder = mRecyclerView
                 .findViewHolderForAdapterPosition(tabPosition);
-        int offset = 0;
-        int extra = 0;
-        if (mOpView != null) {
-            extra = mOpView.getWidth();
-        }
+        if (targetViewHolder == null) {
+            mRecyclerView.scrollToPosition(tabPosition);
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    scrollToTab(tabPosition);
+                }
+            });
+            return;
+        } else {
+            int offset = 0;
 
-        if (targetViewHolder.itemView
-                .getLeft() != ((LayoutParams) mIndicator.getLayoutParams()).leftMargin) {
-            if (targetViewHolder.itemView.getLeft() < 0) {
-                offset = -targetViewHolder.itemView.getWidth();
-            } else if (targetViewHolder.itemView
-                    .getRight() > getResources().getDisplayMetrics().widthPixels - extra) {
-                offset = targetViewHolder.itemView.getWidth();
+            if (targetViewHolder.itemView
+                    .getLeft() != ((LayoutParams) mIndicator.getLayoutParams()).leftMargin) {
+                if (targetViewHolder.itemView.getLeft() < 0) {
+                    offset = -targetViewHolder.itemView.getWidth();
+                } else if (targetViewHolder.itemView.getRight() > mRecyclerView.getWidth()) {
+                    offset = targetViewHolder.itemView.getWidth();
+                }
             }
+
+            mRecyclerView.scrollBy(offset, 0);
         }
 
         if (tabPosition != mSelectedPosition) {
@@ -236,8 +246,6 @@ public class TabsContainer extends FrameLayout {
                 mOnChangeListener.onChange(tabPosition);
             }
         }
-
-        mRecyclerView.scrollBy(offset, 0);
         moveIndicator();
     }
 
@@ -332,7 +340,7 @@ public class TabsContainer extends FrameLayout {
      * Move the indicator to new position
      * @param animated true if use animation
      */
-    private void moveIndicator(boolean animated) {
+    private void moveIndicator(final boolean animated) {
         final RecyclerView.ViewHolder viewHolder = mRecyclerView
                 .findViewHolderForAdapterPosition(mSelectedPosition);
         final LayoutParams layoutParams = (LayoutParams) mIndicator.getLayoutParams();
