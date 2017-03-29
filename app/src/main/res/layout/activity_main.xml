@@ -85,7 +85,8 @@
             app:tabPaddingEnd="12dp"
             app:tabPaddingStart="12dp"
             app:tabPaddingTop="10dp"
-            app:tabTextSize="14sp"/>
+            app:tabTextSize="14sp"
+            app:tabSplitWay="average"/>
 
     </LinearLayout>
 

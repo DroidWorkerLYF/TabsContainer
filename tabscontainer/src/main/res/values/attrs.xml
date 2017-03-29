@@ -19,5 +19,9 @@
         <attr name="operationIcon" format="reference"/>
         <attr name="operationRotateAngle" format="float"/>
         <attr name="operationAnimDuration" format="integer"/>
+        <attr name="tabSplitWay" format="enum">
+            <enum name="wrap" value="0"/>
+            <enum name="average" value="1"/>
+        </attr>
     </declare-styleable>
 </resources>

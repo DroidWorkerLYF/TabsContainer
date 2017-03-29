@@ -35,6 +35,8 @@ public class TabsContainer extends FrameLayout {
     // TODO 支持ViewPager，支持传入一个Adapter是的自定义布局更灵活，考虑标准布局也支持使用Adapter。
     // TODO 支持比例，让所有tab可以均分屏宽
     private static final int DEFAULT_POSITION = 0;
+    private static final int SPLIT_WRAP = 0;
+    private static final int SPLIT_AVERAGE = 1;
     private float mTabTextSize;
     private int mTabColor;
     private int mTabSelectedColor;
@@ -52,6 +54,7 @@ public class TabsContainer extends FrameLayout {
     private int mOpIconResId;
     private float mOpRotateAngle;
     private int mOpAnimDuration;
+    private int mTabSplitWay;
     private RecyclerView mRecyclerView;
     private View mIndicator;
     private ImageView mOpView;
@@ -102,6 +105,7 @@ public class TabsContainer extends FrameLayout {
                         getResources().getDisplayMetrics()));
 
         mTabBackgroundResId = typedArray.getResourceId(R.styleable.TabsContainer_tabBackground, 0);
+        mTabSplitWay = typedArray.getInt(R.styleable.TabsContainer_tabSplitWay, SPLIT_WRAP);
         // initialize indicator's properties
         mIndicatorColor = typedArray.getResourceId(R.styleable.TabsContainer_indicatorColor,
                 Color.WHITE);
@@ -442,8 +446,6 @@ public class TabsContainer extends FrameLayout {
                 inflateDefault(type);
             }
             itemView.setBackgroundResource(mTabBackgroundResId);
-            itemView.setPadding(mTabPaddingStart, mTabPaddingTop, mTabPaddingEnd,
-                    mTabPaddingBottom);
             if (mTabMinWidth != 0) {
                 itemView.setMinimumWidth(mTabMinWidth);
             }
@@ -475,13 +477,23 @@ public class TabsContainer extends FrameLayout {
 
             if ((type & TabType.ICON) == TabType.ICON) {
                 ImageView iconView = new ImageView(itemView.getContext());
-                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                LinearLayout.LayoutParams layoutParams;
+                if (mTabSplitWay == SPLIT_AVERAGE) {
+                    layoutParams = new LinearLayout.LayoutParams(
+                            mRecyclerView.getMeasuredWidth() / mTabLayoutAdapter.getItemCount(),
+                            LinearLayout.LayoutParams.WRAP_CONTENT);
+                } else {
+                    layoutParams = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT);
+                }
                 layoutParams.gravity = Gravity.CENTER;
                 linearLayout.addView(iconView, 0, layoutParams);
+                iconView.setPadding(mTabPaddingStart, mTabPaddingTop, mTabPaddingEnd,
+                        mTabPaddingBottom);
                 mIconView = iconView;
             }
+
             if ((type & TabType.TITLE) == TabType.TITLE) {
                 TextView textView = new TextView(itemView.getContext());
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTabTextSize);
@@ -490,12 +502,17 @@ public class TabsContainer extends FrameLayout {
                 if (mTabTitleMaxWidth != 0) {
                     textView.setMaxWidth(mTabTitleMaxWidth);
                 }
-
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT);
+                layoutParams.gravity = Gravity.CENTER;
                 if (mIconView != null) {
                     layoutParams.topMargin = mTabTitleMarginTop;
+                    mIconView.setPadding(mTabPaddingStart, mTabPaddingTop, mTabPaddingEnd, 0);
+                    textView.setPadding(mTabPaddingStart, 0, mTabPaddingEnd, mTabPaddingBottom);
+                } else {
+                    textView.setPadding(mTabPaddingStart, mTabPaddingTop, mTabPaddingEnd,
+                            mTabPaddingBottom);
                 }
 
                 linearLayout.addView(textView, layoutParams);
