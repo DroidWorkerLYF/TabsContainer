@@ -210,7 +210,7 @@ public class TabsContainer extends FrameLayout {
         return mItemList.get(position).getIcon();
     }
 
-    public int getCurrentSelectedPosition() {
+    public int getSelectedPosition() {
         return mSelectedPosition;
     }
 
@@ -242,9 +242,10 @@ public class TabsContainer extends FrameLayout {
         }
 
         if (tabPosition != mSelectedPosition) {
-            mTabLayoutAdapter.notifyItemChanged(mSelectedPosition);
-            mTabLayoutAdapter.notifyItemChanged(tabPosition);
+            int prePos = mSelectedPosition;
             mSelectedPosition = tabPosition;
+            mTabLayoutAdapter.notifyItemChanged(prePos);
+            mTabLayoutAdapter.notifyItemChanged(tabPosition);
 
             if (mOnChangeListener != null) {
                 mOnChangeListener.onChange(tabPosition);
