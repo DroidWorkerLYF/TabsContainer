@@ -1,5 +1,9 @@
 package com.droidworker.tabscontainer;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -23,27 +27,24 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * @author luoyanfeng@le.com
  */
 
 public class TabsContainer extends FrameLayout {
     // TODO 支持ViewPager，支持传入一个Adapter是的自定义布局更灵活，考虑标准布局也支持使用Adapter。
-    private static final String EMPTY_TITLE = "";
+    // TODO 支持比例，让所有tab可以均分屏宽
     private static final int DEFAULT_POSITION = 0;
     private float mTabTextSize;
-    private int mTabTextColor;
-    private int mTabSelectedTextColor;
+    private int mTabColor;
+    private int mTabSelectedColor;
     private int mTabPaddingStart;
     private int mTabPaddingTop;
     private int mTabPaddingEnd;
     private int mTabPaddingBottom;
     private int mTabMinWidth;
-    private int mTabMaxWidth;
+    private int mTabTitleMaxWidth;
+    private int mTabTitleMarginTop;
     private int mTabBackgroundResId;
     private int mIndicatorColor;
     private int mIndicatorHeight;
@@ -72,11 +73,11 @@ public class TabsContainer extends FrameLayout {
     public TabsContainer(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        // initialize properties
+        // initialize tab's properties
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.TabsContainer);
         mTabTextSize = typedArray.getDimensionPixelSize(R.styleable.TabsContainer_tabTextSize, 12);
-        mTabTextColor = typedArray.getColor(R.styleable.TabsContainer_tabTextColor, Color.LTGRAY);
-        mTabSelectedTextColor = typedArray.getColor(R.styleable.TabsContainer_tabSelectedTextColor,
+        mTabColor = typedArray.getColor(R.styleable.TabsContainer_tabColor, Color.LTGRAY);
+        mTabSelectedColor = typedArray.getColor(R.styleable.TabsContainer_tabSelectedColor,
                 Color.WHITE);
         final int tabPadding = typedArray
                 .getDimensionPixelSize(R.styleable.TabsContainer_tabPadding, 0);
@@ -93,12 +94,15 @@ public class TabsContainer extends FrameLayout {
             mTabPaddingStart = mTabPaddingTop = mTabPaddingEnd = mTabPaddingBottom = tabPadding;
         }
         mTabMinWidth = typedArray.getDimensionPixelSize(R.styleable.TabsContainer_tabMinWidth, 0);
-        mTabMaxWidth = typedArray.getDimensionPixelSize(R.styleable.TabsContainer_tabMaxWidth, 0);
-        if (mTabMaxWidth < mTabMinWidth) {
-            throw new IllegalStateException("Tab's min width is larger than max width");
-        }
-        mTabBackgroundResId = typedArray.getResourceId(R.styleable.TabsContainer_tabBackground, 0);
+        mTabTitleMaxWidth = typedArray
+                .getDimensionPixelSize(R.styleable.TabsContainer_tabTitleMaxWidth, 0);
+        mTabTitleMarginTop = typedArray.getDimensionPixelSize(
+                R.styleable.TabsContainer_tabTitleMarginTop,
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6,
+                        getResources().getDisplayMetrics()));
 
+        mTabBackgroundResId = typedArray.getResourceId(R.styleable.TabsContainer_tabBackground, 0);
+        // initialize indicator's properties
         mIndicatorColor = typedArray.getResourceId(R.styleable.TabsContainer_indicatorColor,
                 Color.WHITE);
         mIndicatorHeight = typedArray.getDimensionPixelSize(
@@ -107,10 +111,12 @@ public class TabsContainer extends FrameLayout {
                         getResources().getDisplayMetrics()));
         mIndicatorAnimDuration = typedArray
                 .getInteger(R.styleable.TabsContainer_indicatorAnimDuration, 100);
+        // initialize operation's properties
         mOpIconResId = typedArray.getResourceId(R.styleable.TabsContainer_operationIcon, 0);
         mOpRotateAngle = typedArray.getFloat(R.styleable.TabsContainer_operationRotateAngle, 0);
         mOpAnimDuration = typedArray.getInteger(R.styleable.TabsContainer_operationAnimDuration,
                 300);
+
         typedArray.recycle();
 
         // create tabs container
@@ -154,6 +160,7 @@ public class TabsContainer extends FrameLayout {
             });
         }
 
+        // we don't know mOpView'size and indicator's width so post to handler
         post(new Runnable() {
             @Override
             public void run() {
@@ -185,11 +192,63 @@ public class TabsContainer extends FrameLayout {
     }
 
     public String getTitle(int position) {
-        return EMPTY_TITLE;
+        return mItemList.get(position).getTitle();
+    }
+
+    public Drawable getIcon(int position) {
+        return mItemList.get(position).getIcon();
+    }
+
+    public int getCurrentSelectedPosition() {
+        return mSelectedPosition;
     }
 
     public void scrollToTab(int tabPosition) {
-        onChange(tabPosition);
+        RecyclerView.ViewHolder targetViewHolder = mRecyclerView
+                .findViewHolderForAdapterPosition(tabPosition);
+        int offset = 0;
+        int extra = 0;
+        if (mOpView != null) {
+            extra = mOpView.getWidth();
+        }
+
+        if (targetViewHolder.itemView
+                .getLeft() != ((LayoutParams) mIndicator.getLayoutParams()).leftMargin) {
+            if (targetViewHolder.itemView.getLeft() < 0) {
+                offset = -targetViewHolder.itemView.getWidth();
+            } else if (targetViewHolder.itemView
+                    .getRight() > getResources().getDisplayMetrics().widthPixels - extra) {
+                offset = targetViewHolder.itemView.getWidth();
+            }
+        }
+
+        if (tabPosition != mSelectedPosition) {
+            mTabLayoutAdapter.notifyItemChanged(mSelectedPosition);
+            mTabLayoutAdapter.notifyItemChanged(tabPosition);
+            mSelectedPosition = tabPosition;
+
+            if (mOnChangeListener != null) {
+                mOnChangeListener.onChange(tabPosition, getTitle(tabPosition));
+            }
+        }
+
+        mRecyclerView.scrollBy(offset, 0);
+        moveIndicator();
+    }
+
+    public void setTabTextSize(float textSize) {
+        mTabTextSize = textSize;
+        mTabLayoutAdapter.notifyDataSetChanged();
+    }
+
+    public void setTabColor(int color) {
+        mTabColor = color;
+        mTabLayoutAdapter.notifyDataSetChanged();
+    }
+
+    public void setTabSelectedColor(int color) {
+        mTabSelectedColor = color;
+        mTabLayoutAdapter.notifyDataSetChanged();
     }
 
     public void setTabBackground(int resId) {
@@ -208,12 +267,17 @@ public class TabsContainer extends FrameLayout {
         mIndicator.requestLayout();
     }
 
-    public void finishOperate(){
+    public void setOperateIconResId(int resId) {
+        mOpIconResId = resId;
+        mOpView.setImageResource(mOpIconResId);
+    }
+
+    public void finishOperate() {
 
     }
 
     public void reset() {
-        onChange(DEFAULT_POSITION);
+        scrollToTab(DEFAULT_POSITION);
     }
 
     public void setOnChangeListener(OnChangeListener onChangeListener) {
@@ -237,7 +301,7 @@ public class TabsContainer extends FrameLayout {
                 .getLayoutManager();
         int start = linearLayoutManager.findLastVisibleItemPosition();
         int end = mItemList.size();
-        if(start < end){
+        if (start < end) {
             start = start + 1;
         }
         List<TabItem> tabItems = mItemList.subList(start, end);
@@ -246,39 +310,6 @@ public class TabsContainer extends FrameLayout {
             titles.add(tabItem.getTitle());
         }
         return titles;
-    }
-
-    private void onChange(int position) {
-        RecyclerView.ViewHolder targetViewHolder = mRecyclerView
-                .findViewHolderForAdapterPosition(position);
-        int offset = 0;
-        int extra = 0;
-        if (mOpView != null) {
-            extra = mOpView.getWidth();
-        }
-
-        if (targetViewHolder.itemView
-                .getLeft() != ((LayoutParams) mIndicator.getLayoutParams()).leftMargin) {
-            if (targetViewHolder.itemView.getLeft() < 0) {
-                offset = -targetViewHolder.itemView.getWidth();
-            } else if (targetViewHolder.itemView
-                    .getRight() > getResources().getDisplayMetrics().widthPixels - extra) {
-                offset = targetViewHolder.itemView.getWidth();
-            }
-        }
-
-        if (position != mSelectedPosition) {
-            mTabLayoutAdapter.notifyItemChanged(mSelectedPosition);
-            mTabLayoutAdapter.notifyItemChanged(position);
-            mSelectedPosition = position;
-
-            if (mOnChangeListener != null) {
-                mOnChangeListener.onChange(position, getTitle(position));
-            }
-        }
-
-        mRecyclerView.scrollBy(offset, 0);
-        moveIndicator();
     }
 
     private void moveIndicator() {
@@ -391,6 +422,11 @@ public class TabsContainer extends FrameLayout {
                 inflateDefault(type);
             }
             itemView.setBackgroundResource(mTabBackgroundResId);
+            itemView.setPadding(mTabPaddingStart, mTabPaddingTop, mTabPaddingEnd,
+                    mTabPaddingBottom);
+            if (mTabMinWidth != 0) {
+                itemView.setMinimumWidth(mTabMinWidth);
+            }
         }
 
         /**
@@ -419,25 +455,30 @@ public class TabsContainer extends FrameLayout {
 
             if ((type & TabType.ICON) == TabType.ICON) {
                 ImageView iconView = new ImageView(itemView.getContext());
-                linearLayout.addView(iconView, 0);
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                layoutParams.gravity = Gravity.CENTER;
+                linearLayout.addView(iconView, 0, layoutParams);
                 mIconView = iconView;
             }
             if ((type & TabType.TITLE) == TabType.TITLE) {
                 TextView textView = new TextView(itemView.getContext());
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTabTextSize);
-                textView.setTextColor(mTabTextColor);
+                textView.setTextColor(mTabColor);
                 textView.setGravity(Gravity.CENTER);
-                textView.setPadding(mTabPaddingStart, mTabPaddingTop, mTabPaddingEnd,
-                        mTabPaddingBottom);
-                if (mTabMinWidth != 0) {
-                    textView.setMinWidth(mTabMinWidth);
+                if (mTabTitleMaxWidth != 0) {
+                    textView.setMaxWidth(mTabTitleMaxWidth);
                 }
-                if (mTabMaxWidth != 0) {
-                    textView.setMaxWidth(mTabMaxWidth);
+
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                if (mIconView != null) {
+                    layoutParams.topMargin = mTabTitleMarginTop;
                 }
-                linearLayout.addView(textView,
-                        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT));
+
+                linearLayout.addView(textView, layoutParams);
                 mTitleView = textView;
             }
         }
@@ -451,10 +492,11 @@ public class TabsContainer extends FrameLayout {
         void update(@Nullable String title, @Nullable Drawable icon, boolean isSelected) {
             if (mTitleView != null && !TextUtils.isEmpty(title)) {
                 mTitleView.setText(title);
-                mTitleView.setTextColor(isSelected ? mTabSelectedTextColor : mTabTextColor);
+                mTitleView.setTextColor(isSelected ? mTabSelectedColor : mTabColor);
             }
 
             if (mIconView != null && icon != null) {
+                icon.setTint(isSelected ? mTabSelectedColor : mTabColor);
                 mIconView.setImageDrawable(icon);
             }
         }

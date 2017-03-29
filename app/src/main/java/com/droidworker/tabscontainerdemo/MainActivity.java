@@ -1,6 +1,14 @@
 package com.droidworker.tabscontainerdemo;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.droidworker.flowlayout.TagAdapter;
+import com.droidworker.flowlayout.TagFlowLayout;
+import com.droidworker.tabscontainer.TabsContainer;
+
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,34 +23,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.droidworker.flowlayout.TagAdapter;
-import com.droidworker.flowlayout.TagFlowLayout;
-import com.droidworker.tabscontainer.TabsContainer;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class MainActivity extends AppCompatActivity {
-
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-    private SectionsPagerAdapter mSectionsPagerAdapter;
 
     /**
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-    private TabsContainer mTabLayout;
     private TagFlowLayout mTagFlowLayout;
-    private List<String> mList = new ArrayList<>();
     private List<String> mTags = new ArrayList<>();
-    private TagAdapter mTagAdapter;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -73,53 +61,50 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        // Set up the ViewPager with the sections adapter.
+        final TabsContainer titleTabs = (TabsContainer) findViewById(R.id.title_tabs_container);
+        List<String> list = new ArrayList<>();
+        list.add("推荐");
+        list.add("电影");
+        list.add("电视剧");
+        list.add("动漫");
+        list.add("综艺");
+        list.add("资讯");
+        list.add("音乐");
+        list.add("纪录片");
+        list.add("会员");
+        list.add("排行榜");
+        list.add("专题");
+        titleTabs.setTitles(list);
+
+        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), list);
         mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setAdapter(sectionsPagerAdapter);
 
-        mTabLayout = (TabsContainer) findViewById(R.id.tabs_container);
-        mList.add("推荐");
-        mList.add("电影");
-        mList.add("电视剧");
-        mList.add("动漫");
-        mList.add("综艺");
-        mList.add("资讯");
-        mList.add("音乐");
-        mList.add("纪录片");
-        mList.add("会员");
-        mList.add("排行榜");
-        mList.add("专题");
-        mTabLayout.setTitles(mList);
-        mSectionsPagerAdapter.notifyDataSetChanged();
-
-        mTabLayout.setOnChangeListener(new TabsContainer.OnChangeListener() {
+        titleTabs.setOnChangeListener(new TabsContainer.OnChangeListener() {
             @Override
             public void onChange(int position, String title) {
                 mViewPager.setCurrentItem(position, true);
                 mTagFlowLayout.setVisibility(View.GONE);
             }
         });
-        mTabLayout.setOnOperateListener(new TabsContainer.onOperateListener() {
+        titleTabs.setOnOperateListener(new TabsContainer.onOperateListener() {
             @Override
             public void onOperate(boolean isOpen) {
-                List<String> list = mTabLayout.getVisibleTitles();
-                if(list.size() != 0){
+                List<String> list = titleTabs.getVisibleTitles();
+                if (list.size() != 0) {
                     mTags.clear();
                     mTags = list;
                     mTagFlowLayout.update();
                     mTagFlowLayout.setVisibility(isOpen ? View.VISIBLE : View.GONE);
                 } else {
-                    mTabLayout.finishOperate();
+                    titleTabs.finishOperate();
                 }
             }
         });
 
         mTagFlowLayout = (TagFlowLayout) findViewById(R.id.flow_layout);
-        mTagAdapter = new TagAdapter() {
+        TagAdapter tagAdapter = new TagAdapter() {
             @Override
             public View getView(ViewGroup parent, final int position) {
                 TextView textView = new TextView(parent.getContext());
@@ -139,15 +124,28 @@ public class MainActivity extends AppCompatActivity {
                 return mTags.size();
             }
         };
-        mTagFlowLayout.setTagAdapter(mTagAdapter);
-    }
+        mTagFlowLayout.setTagAdapter(tagAdapter);
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
+        List<Drawable> iconList = new ArrayList<>();
+        iconList.add(getDrawable(R.drawable.ic_alarm_on_grey_24dp));
+        iconList.add(getDrawable(R.drawable.ic_album_grey_24dp));
+        iconList.add(getDrawable(R.drawable.ic_email_grey_24dp));
+        iconList.add(getDrawable(R.drawable.ic_photo_grey_24dp));
+        TabsContainer iconTabs = (TabsContainer) findViewById(R.id.icon_tabs_container);
+        iconTabs.setIcons(iconList);
 
-        mTabLayout.removeOnChangeListener();
-        mTabLayout.removeOnOperateListener();
+        List<String> titleList = new ArrayList<>();
+        titleList.add("推荐");
+        titleList.add("电影");
+        titleList.add("电视剧");
+        titleList.add("动漫");
+        List<Drawable> iconList2 = new ArrayList<>();
+        iconList2.add(getDrawable(R.drawable.ic_alarm_on_grey_24dp));
+        iconList2.add(getDrawable(R.drawable.ic_album_grey_24dp));
+        iconList2.add(getDrawable(R.drawable.ic_email_grey_24dp));
+        iconList2.add(getDrawable(R.drawable.ic_photo_grey_24dp));
+        TabsContainer tabsContainer = (TabsContainer) findViewById(R.id.tabs_container);
+        tabsContainer.setTitlesAndIcons(titleList, iconList2);
     }
 
     /**
@@ -194,9 +192,12 @@ public class MainActivity extends AppCompatActivity {
      * one of the sections/tabs/pages.
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
+        private List<String> mList;
 
-        SectionsPagerAdapter(FragmentManager fm) {
+        SectionsPagerAdapter(FragmentManager fm, List<String> list) {
             super(fm);
+
+            mList = list;
         }
 
         @Override
