@@ -6,8 +6,5 @@
         <attr name="tagTopMargin" format="dimension"/>
         <attr name="tagRightMargin" format="dimension"/>
         <attr name="tagBottomMargin" format="dimension"/>
-        <attr name="tagTextColor" format="color"/>
-        <attr name="tagTextSize" format="dimension"/>
-        <attr name="tagBackground" format="reference"/>
     </declare-styleable>
 </resources>

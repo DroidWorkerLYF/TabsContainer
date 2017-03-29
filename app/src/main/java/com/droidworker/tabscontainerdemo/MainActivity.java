@@ -13,9 +13,11 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,13 +26,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    private ViewPager mViewPager;
-    private TagFlowLayout mTagFlowLayout;
+    private final String TAG = MainActivity.class.getSimpleName();
     private List<String> mTags = new ArrayList<>();
+    private TabsContainer mTitleTabs;
+    private TabsContainer mIconTabs;
+    private TabsContainer mTabs;
+    private TagFlowLayout mTagFlowLayout;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -47,7 +48,12 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         // noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_reset) {
+            mTitleTabs.reset();
+            mIconTabs.reset();
+            mTabs.reset();
+            mTagFlowLayout.setVisibility(View.GONE);
+            mTitleTabs.operationDone();
             return true;
         }
 
@@ -62,7 +68,14 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        final TabsContainer titleTabs = (TabsContainer) findViewById(R.id.title_tabs_container);
+        initTitleTabs();
+
+        initIconTabs();
+
+        initTabs();
+    }
+
+    private void initTitleTabs() {
         List<String> list = new ArrayList<>();
         list.add("推荐");
         list.add("电影");
@@ -75,35 +88,39 @@ public class MainActivity extends AppCompatActivity {
         list.add("会员");
         list.add("排行榜");
         list.add("专题");
-        titleTabs.setTitles(list);
 
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), list);
-        mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(sectionsPagerAdapter);
+        mTitleTabs = (TabsContainer) findViewById(R.id.title_tabs_container);
+        mTagFlowLayout = (TagFlowLayout) findViewById(R.id.flow_layout);
 
-        titleTabs.setOnChangeListener(new TabsContainer.OnChangeListener() {
+        mTitleTabs.setTitles(list);
+
+        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(
+                getSupportFragmentManager(), list);
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.container);
+        viewPager.setAdapter(sectionsPagerAdapter);
+
+        mTitleTabs.setOnChangeListener(new TabsContainer.OnChangeListener() {
             @Override
-            public void onChange(int position, String title) {
-                mViewPager.setCurrentItem(position, true);
+            public void onChange(int position) {
+                viewPager.setCurrentItem(position, true);
                 mTagFlowLayout.setVisibility(View.GONE);
             }
         });
-        titleTabs.setOnOperateListener(new TabsContainer.onOperateListener() {
+        mTitleTabs.setOnOperateListener(new TabsContainer.onOperateListener() {
             @Override
             public void onOperate(boolean isOpen) {
-                List<String> list = titleTabs.getVisibleTitles();
+                List<String> list = mTitleTabs.getVisibleTitles();
                 if (list.size() != 0) {
                     mTags.clear();
                     mTags = list;
                     mTagFlowLayout.update();
                     mTagFlowLayout.setVisibility(isOpen ? View.VISIBLE : View.GONE);
                 } else {
-                    titleTabs.finishOperate();
+                    mTitleTabs.operationDone();
                 }
             }
         });
 
-        mTagFlowLayout = (TagFlowLayout) findViewById(R.id.flow_layout);
         TagAdapter tagAdapter = new TagAdapter() {
             @Override
             public View getView(ViewGroup parent, final int position) {
@@ -114,6 +131,9 @@ public class MainActivity extends AppCompatActivity {
                 textView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        int targetPos = mTitleTabs.getLastVisibleTabPosition() + position + 1;
+                        mTitleTabs.scrollToTab(targetPos);
+                        mTitleTabs.operationDone();
                     }
                 });
                 return textView;
@@ -125,27 +145,68 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         mTagFlowLayout.setTagAdapter(tagAdapter);
+    }
 
+    private void initIconTabs() {
         List<Drawable> iconList = new ArrayList<>();
         iconList.add(getDrawable(R.drawable.ic_alarm_on_grey_24dp));
         iconList.add(getDrawable(R.drawable.ic_album_grey_24dp));
         iconList.add(getDrawable(R.drawable.ic_email_grey_24dp));
         iconList.add(getDrawable(R.drawable.ic_photo_grey_24dp));
-        TabsContainer iconTabs = (TabsContainer) findViewById(R.id.icon_tabs_container);
-        iconTabs.setIcons(iconList);
 
+        mIconTabs = (TabsContainer) findViewById(R.id.icon_tabs_container);
+        mIconTabs.setIcons(iconList);
+        mIconTabs.setIndicatorHeight(
+                getResources().getDimensionPixelSize(R.dimen.test_indicator_height));
+        mIconTabs.setOnChangeListener(new TabsContainer.OnChangeListener() {
+            @Override
+            public void onChange(int position) {
+                Log.d(TAG, position + " icon " + mIconTabs.getIcon(position));
+            }
+        });
+    }
+
+    private void initTabs() {
         List<String> titleList = new ArrayList<>();
         titleList.add("推荐");
         titleList.add("电影");
         titleList.add("电视剧");
         titleList.add("动漫");
-        List<Drawable> iconList2 = new ArrayList<>();
-        iconList2.add(getDrawable(R.drawable.ic_alarm_on_grey_24dp));
-        iconList2.add(getDrawable(R.drawable.ic_album_grey_24dp));
-        iconList2.add(getDrawable(R.drawable.ic_email_grey_24dp));
-        iconList2.add(getDrawable(R.drawable.ic_photo_grey_24dp));
-        TabsContainer tabsContainer = (TabsContainer) findViewById(R.id.tabs_container);
-        tabsContainer.setTitlesAndIcons(titleList, iconList2);
+        List<Drawable> iconList = new ArrayList<>();
+        iconList.add(getDrawable(R.drawable.ic_alarm_on_grey_24dp));
+        iconList.add(getDrawable(R.drawable.ic_album_grey_24dp));
+        iconList.add(getDrawable(R.drawable.ic_email_grey_24dp));
+        iconList.add(getDrawable(R.drawable.ic_photo_grey_24dp));
+
+        mTabs = (TabsContainer) findViewById(R.id.tabs_container);
+        mTabs.setTitlesAndIcons(titleList, iconList);
+
+        mTabs.setTabColor(ResourcesCompat.getColor(getResources(), R.color.grey, null));
+        mTabs.setTabSelectedColor(
+                ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
+        mTabs.setIndicatorColor(
+                ResourcesCompat.getColor(getResources(), R.color.colorAccent, null));
+        mTabs.setOnChangeListener(new TabsContainer.OnChangeListener() {
+            @Override
+            public void onChange(int position) {
+                Log.d(TAG, position + " tabs " + mTabs.getTitle(position) + " icon "
+                        + mTabs.getIcon(position));
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        removeListeners(mTitleTabs);
+        removeListeners(mIconTabs);
+        removeListeners(mTabs);
+    }
+
+    private void removeListeners(TabsContainer tabsContainer) {
+        tabsContainer.removeOnChangeListener();
+        tabsContainer.removeOnOperateListener();
     }
 
     /**
@@ -202,8 +263,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
             return PlaceholderFragment.newInstance(position + 1, getPageTitle(position).toString());
         }
 

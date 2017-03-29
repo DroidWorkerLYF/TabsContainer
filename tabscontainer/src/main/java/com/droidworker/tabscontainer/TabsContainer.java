@@ -145,13 +145,7 @@ public class TabsContainer extends FrameLayout {
                 @Override
                 public void onClick(View view) {
                     mIsOpen = !mIsOpen;
-                    float startAngle = mIsOpen ? 0 : mOpRotateAngle;
-                    float endAngle = mIsOpen ? mOpRotateAngle : 0;
-                    Animation animation = new RotateAnimation(startAngle, endAngle,
-                            mOpView.getPivotX(), mOpView.getPivotY());
-                    animation.setDuration(mOpAnimDuration);
-                    animation.setFillAfter(true);
-                    animation.setFillBefore(true);
+                    Animation animation = getRotateAnim();
                     mOpView.startAnimation(animation);
                     if (mOnOperateListener != null) {
                         mOnOperateListener.onOperate(mIsOpen);
@@ -174,6 +168,17 @@ public class TabsContainer extends FrameLayout {
                 moveIndicator(false);
             }
         });
+    }
+
+    private Animation getRotateAnim() {
+        float startAngle = mIsOpen ? 0 : mOpRotateAngle;
+        float endAngle = mIsOpen ? mOpRotateAngle : 0;
+        Animation animation = new RotateAnimation(startAngle, endAngle, mOpView.getPivotX(),
+                mOpView.getPivotY());
+        animation.setDuration(mOpAnimDuration);
+        animation.setFillAfter(true);
+        animation.setFillBefore(true);
+        return animation;
     }
 
     public void setTitles(List<String> titles) {
@@ -228,7 +233,7 @@ public class TabsContainer extends FrameLayout {
             mSelectedPosition = tabPosition;
 
             if (mOnChangeListener != null) {
-                mOnChangeListener.onChange(tabPosition, getTitle(tabPosition));
+                mOnChangeListener.onChange(tabPosition);
             }
         }
 
@@ -272,8 +277,10 @@ public class TabsContainer extends FrameLayout {
         mOpView.setImageResource(mOpIconResId);
     }
 
-    public void finishOperate() {
-
+    public void operationDone() {
+        mIsOpen = false;
+        Animation animation = getRotateAnim();
+        mOpView.startAnimation(animation);
     }
 
     public void reset() {
@@ -310,6 +317,11 @@ public class TabsContainer extends FrameLayout {
             titles.add(tabItem.getTitle());
         }
         return titles;
+    }
+
+    public int getLastVisibleTabPosition() {
+        return ((LinearLayoutManager) mRecyclerView.getLayoutManager())
+                .findLastVisibleItemPosition();
     }
 
     private void moveIndicator() {
@@ -504,7 +516,7 @@ public class TabsContainer extends FrameLayout {
 
     public interface OnChangeListener {
 
-        void onChange(int position, String title);
+        void onChange(int position);
     }
 
     public interface onOperateListener {

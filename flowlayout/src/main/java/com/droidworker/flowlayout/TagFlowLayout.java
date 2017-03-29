@@ -2,11 +2,8 @@ package com.droidworker.flowlayout;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
-
-import java.util.List;
 
 /**
  * @author luoyanfeng@le.com
@@ -17,11 +14,7 @@ public class TagFlowLayout extends FlowLayout {
     private int mTopMargin;
     private int mEndMargin;
     private int mBottomMargin;
-    private int mTextColor;
-    private int mTextSize;
-    private int mTagBackgroundResId;
     private TagAdapter mTagAdapter;
-    private List<String> mTags;
 
     public TagFlowLayout(Context context) {
         this(context, null, 0);
@@ -48,9 +41,6 @@ public class TagFlowLayout extends FlowLayout {
         } else {
             mLeftMargin = mTopMargin = mEndMargin = mBottomMargin = margin;
         }
-        mTextColor = typedArray.getColor(R.styleable.TagFlowLayout_tagTextColor, Color.WHITE);
-        mTextSize = typedArray.getDimensionPixelSize(R.styleable.TagFlowLayout_tagTextSize, 12);
-        mTagBackgroundResId = typedArray.getResourceId(R.styleable.TagFlowLayout_tagBackground, 0);
         typedArray.recycle();
     }
 

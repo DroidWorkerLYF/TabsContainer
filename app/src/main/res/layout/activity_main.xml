@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout android:id="@+id/main_content"
-                                                 xmlns:android="http://schemas.android.com/apk/res/android"
-                                                 xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                 xmlns:tools="http://schemas.android.com/tools"
-                                                 android:layout_width="match_parent"
-                                                 android:layout_height="match_parent"
-                                                 android:fitsSystemWindows="true"
-                                                 tools:context="com.droidworker.tabscontainerdemo.MainActivity">
+<RelativeLayout android:id="@+id/main_content"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/grey"
+                tools:context="com.droidworker.tabscontainerdemo.MainActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
         android:paddingTop="@dimen/appbar_padding_top"
         android:theme="@style/AppTheme.AppBarOverlay">
 
@@ -19,8 +20,6 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/AppTheme.PopupOverlay">
 
         </android.support.v7.widget.Toolbar>
@@ -30,26 +29,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
+            app:operationAnimDuration="300"
+            app:operationIcon="@drawable/ic_expand_more_24dp"
+            app:operationRotateAngle="180"
             app:tabPaddingBottom="10dp"
             app:tabPaddingEnd="12dp"
             app:tabPaddingStart="12dp"
             app:tabPaddingTop="10dp"
-            app:tabTextSize="16sp"
-            app:operationRotateAngle="180"
-            app:operationAnimDuration="300"
-            app:operationIcon="@drawable/ic_expand_more_24dp"/>
+            app:tabTextSize="16sp"/>
 
         <com.droidworker.flowlayout.TagFlowLayout
             android:id="@+id/flow_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:tagTextSize="16sp"
-            app:tagLeftMargin="12dp"
-            app:tagRightMargin="12dp"
-            app:tagTopMargin="10dp"
             app:tagBottomMargin="10dp"
-            app:tagTextColor="@color/grey">
+            app:tagLeftMargin="12dp"
+            app:tagRightMargin="12dp">
 
         </com.droidworker.flowlayout.TagFlowLayout>
 
@@ -58,29 +54,39 @@
     <android.support.v4.view.ViewPager
         android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bottom_layout"
+        android:layout_below="@id/appbar"/>
 
-    <com.droidworker.tabscontainer.TabsContainer
-        android:id="@+id/icon_tabs_container"
+    <LinearLayout
+        android:id="@+id/bottom_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:layout_gravity="bottom"
-        app:tabPaddingBottom="10dp"
-        app:tabPaddingEnd="12dp"
-        app:tabPaddingStart="12dp"
-        app:tabPaddingTop="10dp"/>
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
 
-    <com.droidworker.tabscontainer.TabsContainer
-        android:id="@+id/tabs_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:layout_gravity="center"
-        app:tabPaddingBottom="10dp"
-        app:tabPaddingEnd="12dp"
-        app:tabPaddingStart="12dp"
-        app:tabPaddingTop="10dp"
-        app:tabTextSize="14sp"/>
-</android.support.design.widget.CoordinatorLayout>
+        <com.droidworker.tabscontainer.TabsContainer
+            android:id="@+id/icon_tabs_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            app:tabPaddingBottom="10dp"
+            app:tabPaddingEnd="12dp"
+            app:tabPaddingStart="12dp"
+            app:tabPaddingTop="10dp"/>
+
+        <com.droidworker.tabscontainer.TabsContainer
+            android:id="@+id/tabs_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:layout_marginTop="10dp"
+            app:tabPaddingBottom="10dp"
+            app:tabPaddingEnd="12dp"
+            app:tabPaddingStart="12dp"
+            app:tabPaddingTop="10dp"
+            app:tabTextSize="14sp"/>
+
+    </LinearLayout>
+
+</RelativeLayout>
