@@ -34,6 +34,8 @@
             app:operationRotateAngle="180"
             app:tabPaddingBottom="10dp"
             app:tabPaddingTop="10dp"
+            app:tabPaddingStart="@dimen/horizontal_margin"
+            app:tabPaddingEnd="@dimen/horizontal_margin"
             app:tabTextSize="16sp"
             app:tabWidth="@dimen/item_width"/>
 
@@ -83,8 +85,6 @@
             android:background="?attr/colorPrimary"
             android:layout_marginTop="10dp"
             app:tabPaddingBottom="10dp"
-            app:tabPaddingEnd="12dp"
-            app:tabPaddingStart="12dp"
             app:tabPaddingTop="10dp"
             app:tabTextSize="14sp"
             app:tabSplitWay="average"/>

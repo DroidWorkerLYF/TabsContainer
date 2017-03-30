@@ -36,7 +36,6 @@ import android.widget.TextView;
  * {@link #setTitlesAndIcons(List, List)}.
  * You can set a listener via {@link #setOnChangeListener(OnChangeListener)} to be notified when
  * tab's selection state has been changed.
- *
  * @author https://github.com/DroidWorkerLYF
  */
 
@@ -105,8 +104,7 @@ public class TabsContainer extends FrameLayout {
             mTabPaddingStart = mTabPaddingTop = mTabPaddingEnd = mTabPaddingBottom = tabPadding;
         }
         mTabMinWidth = typedArray.getDimensionPixelSize(R.styleable.TabsContainer_tabMinWidth, 0);
-        mTabWidth = typedArray
-                .getDimensionPixelSize(R.styleable.TabsContainer_tabWidth, 0);
+        mTabWidth = typedArray.getDimensionPixelSize(R.styleable.TabsContainer_tabWidth, 0);
         mTabTitleMarginTop = typedArray.getDimensionPixelSize(
                 R.styleable.TabsContainer_tabTitleMarginTop,
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6,
@@ -131,7 +129,7 @@ public class TabsContainer extends FrameLayout {
 
         typedArray.recycle();
 
-        if(mTabMinWidth > mTabWidth){
+        if (mTabMinWidth > mTabWidth && mTabWidth != 0) {
             throw new IllegalStateException("Tab's minimum with larger than it's width");
         }
 
@@ -473,10 +471,16 @@ public class TabsContainer extends FrameLayout {
                 inflateCustom(layoutId);
             } else {
                 inflateDefault(type);
-            }
-            itemView.setBackgroundResource(mTabBackgroundResId);
-            if (mTabMinWidth != 0) {
-                itemView.setMinimumWidth(mTabMinWidth);
+                itemView.setBackgroundResource(mTabBackgroundResId);
+                if (mTabMinWidth != 0) {
+                    itemView.setMinimumWidth(mTabMinWidth);
+                }
+                if (mTabWidth == 0) {
+                    itemView.setPadding(mTabPaddingStart, mTabPaddingTop, mTabPaddingEnd,
+                            mTabPaddingBottom);
+                } else {
+                    itemView.setPadding(0, mTabPaddingTop, 0, mTabPaddingBottom);
+                }
             }
         }
 
@@ -509,8 +513,6 @@ public class TabsContainer extends FrameLayout {
                 LinearLayout.LayoutParams layoutParams = generateLayoutParams();
                 layoutParams.gravity = Gravity.CENTER;
                 linearLayout.addView(iconView, 0, layoutParams);
-                iconView.setPadding(mTabPaddingStart, mTabPaddingTop, mTabPaddingEnd,
-                        mTabPaddingBottom);
                 mIconView = iconView;
             }
 
@@ -523,31 +525,23 @@ public class TabsContainer extends FrameLayout {
                 layoutParams.gravity = Gravity.CENTER;
                 if (mIconView != null) {
                     layoutParams.topMargin = mTabTitleMarginTop;
-                    mIconView.setPadding(mTabPaddingStart, mTabPaddingTop, mTabPaddingEnd, 0);
-                    textView.setPadding(mTabPaddingStart, 0, mTabPaddingEnd, mTabPaddingBottom);
-                } else {
-                    textView.setPadding(mTabPaddingStart, mTabPaddingTop, mTabPaddingEnd,
-                            mTabPaddingBottom);
                 }
-
                 linearLayout.addView(textView, layoutParams);
                 mTitleView = textView;
             }
         }
 
-        private LinearLayout.LayoutParams generateLayoutParams(){
+        private LinearLayout.LayoutParams generateLayoutParams() {
             LinearLayout.LayoutParams layoutParams;
-            if(mTabSplitWay == SPLIT_AVERAGE){
+            if (mTabSplitWay == SPLIT_AVERAGE) {
                 layoutParams = new LinearLayout.LayoutParams(
                         mRecyclerView.getMeasuredWidth() / mTabLayoutAdapter.getItemCount(),
                         LinearLayout.LayoutParams.WRAP_CONTENT);
-            } else if(mTabWidth != 0){
-                layoutParams = new LinearLayout.LayoutParams(
-                        mTabWidth,
+            } else if (mTabWidth != 0) {
+                layoutParams = new LinearLayout.LayoutParams(mTabWidth,
                         LinearLayout.LayoutParams.WRAP_CONTENT);
             } else {
-                layoutParams = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT);
             }
             return layoutParams;

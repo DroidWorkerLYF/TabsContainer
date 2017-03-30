@@ -88,10 +88,10 @@ public class MainActivity extends AppCompatActivity {
         list.add("资讯");
         list.add("纪录片");
         list.add("音乐");
-        list.add("会员");
         list.add("排行榜");
+        list.add("会员");
         list.add("专题");
-        list.add("专题2");
+        list.add("专题22");
         list.add("专题3");
 
         mTitleTabs = (TabsContainer) findViewById(R.id.title_tabs_container);
@@ -120,7 +120,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChange(int position) {
                 viewPager.setCurrentItem(position, true);
-                mTagFlowLayout.setVisibility(View.GONE);
+                if(mTagFlowLayout.getVisibility() == View.VISIBLE){
+                    mTagFlowLayout.setVisibility(View.GONE);
+                    mTitleTabs.operationDone();
+                }
             }
         });
         mTitleTabs.setOnOperateListener(new TabsContainer.OnOperateListener() {
@@ -142,11 +145,10 @@ public class MainActivity extends AppCompatActivity {
                     convertView = new TextView(parent.getContext());
                     if(viewType == 0){
                         FlowLayout.FlowLayoutParams flowLayoutParams = new FlowLayout.FlowLayoutParams(
-                                getResources().getDimensionPixelSize(R.dimen.item_width),
+                                FlowLayout.FlowLayoutParams.WRAP_CONTENT,
                                 FlowLayout.FlowLayoutParams.WRAP_CONTENT);
-                        flowLayoutParams.topMargin = verticalMargin;
-                        flowLayoutParams.bottomMargin = verticalMargin;
                         convertView.setLayoutParams(flowLayoutParams);
+                        convertView.setPadding(0, verticalMargin, 0 ,verticalMargin);
                     }
 
                     convertView.setOnClickListener(new View.OnClickListener() {
@@ -171,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
                     textView.setTextColor(Color.LTGRAY);
                     textView.setTextSize(16);
                     textView.setGravity(Gravity.CENTER);
+                    textView.setMinWidth(getResources().getDimensionPixelSize(R.dimen.item_width));
                 } else {
                     textView.setBackgroundResource(R.drawable.ic_add_white_24dp);
                 }
