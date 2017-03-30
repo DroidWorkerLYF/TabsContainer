@@ -6,10 +6,10 @@ import android.support.annotation.Nullable;
 
 /**
  * Data structure for a tab
- * @author luoyanfeng@le.com
+ * @author https://github.com/DroidWorkerLYF
  */
 
-public class TabItem {
+class TabItem {
     /**
      * Tab's title
      */
@@ -27,35 +27,35 @@ public class TabItem {
      */
     private int mType;
 
-    public void setTitle(@Nullable String title) {
+    void setTitle(@Nullable String title) {
         mTitle = title;
     }
 
-    public String getTitle() {
+    String getTitle() {
         return mTitle;
     }
 
-    public void setIcon(@Nullable Drawable icon) {
+    void setIcon(@Nullable Drawable icon) {
         mIcon = icon;
     }
 
-    public Drawable getIcon() {
+    Drawable getIcon() {
         return mIcon;
     }
 
-    public void setCustomLayout(@Nullable @LayoutRes int layoutId) {
+    void setCustomLayout(@Nullable @LayoutRes int layoutId) {
         mLayoutId = layoutId;
     }
 
-    public int getCustomLayout() {
+    int getCustomLayout() {
         return mLayoutId;
     }
 
-    public void setType(int type) {
+    void setType(int type) {
         mType = type;
     }
 
-    public int getType() {
+    int getType() {
         return mType;
     }
 }

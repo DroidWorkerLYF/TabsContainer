@@ -2,7 +2,7 @@ package com.droidworker.tabscontainer;
 
 /**
  * Tab's type
- * @author luoyanfeng@le.com
+ * @author https://github.com/DroidWorkerLYF
  */
 
 class TabType {

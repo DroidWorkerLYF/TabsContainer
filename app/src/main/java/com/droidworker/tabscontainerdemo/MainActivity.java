@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                 mTagFlowLayout.setVisibility(View.GONE);
             }
         });
-        mTitleTabs.setOnOperateListener(new TabsContainer.onOperateListener() {
+        mTitleTabs.setOnOperateListener(new TabsContainer.OnOperateListener() {
             @Override
             public void onOperate(final boolean isOpen) {
                 List<String> list = mTitleTabs.getVisibleTitles();

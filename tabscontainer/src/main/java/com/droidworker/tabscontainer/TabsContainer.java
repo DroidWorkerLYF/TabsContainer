@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -28,7 +29,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
- * @author luoyanfeng@le.com
+ * TabsContainer provides a horizontal layout to display tabs.
+ * TabsContainer support an addition operation which display at the end of container. You can use it
+ * to support an expand or edit operation and so on.
+ * You can set content by {@link #setTitles(List)}, {@link #setIcons(List)} and
+ * {@link #setTitlesAndIcons(List, List)}.
+ * You can set a listener via {@link #setOnChangeListener(OnChangeListener)} to be notified when
+ * tab's selection state has been changed.
+ * 
+ * @author https://github.com/DroidWorkerLYF
  */
 
 public class TabsContainer extends FrameLayout {
@@ -61,7 +70,7 @@ public class TabsContainer extends FrameLayout {
     private List<TabItem> mItemList = Collections.emptyList();
     private int mSelectedPosition = DEFAULT_POSITION;
     private OnChangeListener mOnChangeListener;
-    private onOperateListener mOnOperateListener;
+    private OnOperateListener mOnOperateListener;
     private boolean mIsOpen;
     private TabLayoutAdapter mTabLayoutAdapter;
 
@@ -163,8 +172,6 @@ public class TabsContainer extends FrameLayout {
             @Override
             public void run() {
                 if (mOpView != null) {
-                    // setPadding(getPaddingLeft(), getPaddingTop(),
-                    // getPaddingRight() + mOpView.getWidth(), getPaddingBottom());
                     FrameLayout.LayoutParams layoutParams = (LayoutParams) mRecyclerView
                             .getLayoutParams();
                     layoutParams.rightMargin = mOpView.getWidth();
@@ -214,6 +221,10 @@ public class TabsContainer extends FrameLayout {
         return mSelectedPosition;
     }
 
+    /**
+     * Scroll to the given position
+     * @param tabPosition position which you want to be selected
+     */
     public void scrollToTab(final int tabPosition) {
         RecyclerView.ViewHolder targetViewHolder = mRecyclerView
                 .findViewHolderForAdapterPosition(tabPosition);
@@ -296,6 +307,9 @@ public class TabsContainer extends FrameLayout {
         mOpView.startAnimation(animation);
     }
 
+    /**
+     * Reset to initialize state.
+     */
     public void reset() {
         scrollToTab(DEFAULT_POSITION);
     }
@@ -308,7 +322,7 @@ public class TabsContainer extends FrameLayout {
         mOnChangeListener = null;
     }
 
-    public void setOnOperateListener(onOperateListener operateListener) {
+    public void setOnOperateListener(OnOperateListener operateListener) {
         mOnOperateListener = operateListener;
     }
 
@@ -316,6 +330,10 @@ public class TabsContainer extends FrameLayout {
         mOnOperateListener = null;
     }
 
+    /**
+     * Get a list of titles which is showing on screen currently
+     * @return a list of titles
+     */
     public List<String> getVisibleTitles() {
         LinearLayoutManager linearLayoutManager = (LinearLayoutManager) mRecyclerView
                 .getLayoutManager();
@@ -332,6 +350,10 @@ public class TabsContainer extends FrameLayout {
         return titles;
     }
 
+    /**
+     * Get the last visible tab's position.
+     * @return a position
+     */
     public int getLastVisibleTabPosition() {
         return ((LinearLayoutManager) mRecyclerView.getLayoutManager())
                 .findLastVisibleItemPosition();
@@ -376,6 +398,9 @@ public class TabsContainer extends FrameLayout {
         mIndicator.requestLayout();
     }
 
+    /**
+     * Adapter for Tabs.
+     */
     private class TabLayoutAdapter extends RecyclerView.Adapter<ItemLayout> {
 
         @Override
@@ -419,7 +444,7 @@ public class TabsContainer extends FrameLayout {
     }
 
     /**
-     * Container for a tab item
+     * Layout container for a tab item
      */
     private class ItemLayout extends RecyclerView.ViewHolder {
         /**
@@ -534,19 +559,33 @@ public class TabsContainer extends FrameLayout {
             }
 
             if (mIconView != null && icon != null) {
-                icon.setTint(isSelected ? mTabSelectedColor : mTabColor);
+                DrawableCompat.setTint(icon, isSelected ? mTabSelectedColor : mTabColor);
                 mIconView.setImageDrawable(icon);
             }
         }
     }
 
+    /**
+     * Interface definition for a callback to be invoked when tab changed.
+     */
     public interface OnChangeListener {
 
+        /**
+         * Called when the tab changed
+         * @param position selected position
+         */
         void onChange(int position);
     }
 
-    public interface onOperateListener {
+    /**
+     * Interface definition for a callback to be invoked when user click the addition operation.
+     */
+    public interface OnOperateListener {
 
+        /**
+         * Called when user click the addition operation.
+         * @param isOpen status of operation
+         */
         void onOperate(boolean isOpen);
     }
 }

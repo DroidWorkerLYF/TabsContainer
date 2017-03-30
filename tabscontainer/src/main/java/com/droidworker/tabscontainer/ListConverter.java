@@ -8,7 +8,7 @@ import android.graphics.drawable.Drawable;
 
 /**
  * Convert a certain list to the list of {@link TabItem}
- * @author luoyanfeng@le.com
+ * @author https://github.com/DroidWorkerLYF
  */
 
 class ListConverter {
