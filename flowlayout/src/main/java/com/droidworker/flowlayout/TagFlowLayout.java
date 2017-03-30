@@ -16,7 +16,7 @@ import android.view.View;
 public class TagFlowLayout extends FlowLayout {
     private int mLeftMargin;
     private int mTopMargin;
-    private int mEndMargin;
+    private int mRightMargin;
     private int mBottomMargin;
     private TagAdapter mTagAdapter;
     private SparseArray<Queue<View>> mCachedViews = new SparseArray<>();
@@ -39,12 +39,12 @@ public class TagFlowLayout extends FlowLayout {
                     0);
             mTopMargin = typedArray.getDimensionPixelSize(R.styleable.TagFlowLayout_tagTopMargin,
                     0);
-            mEndMargin = typedArray.getDimensionPixelSize(R.styleable.TagFlowLayout_tagRightMargin,
+            mRightMargin = typedArray.getDimensionPixelSize(R.styleable.TagFlowLayout_tagRightMargin,
                     0);
             mBottomMargin = typedArray
                     .getDimensionPixelSize(R.styleable.TagFlowLayout_tagBottomMargin, 0);
         } else {
-            mLeftMargin = mTopMargin = mEndMargin = mBottomMargin = margin;
+            mLeftMargin = mTopMargin = mRightMargin = mBottomMargin = margin;
         }
         typedArray.recycle();
     }
@@ -77,11 +77,19 @@ public class TagFlowLayout extends FlowLayout {
             TagLayoutParams layoutParams = (TagLayoutParams) generateDefaultLayoutParams();
             layoutParams.leftMargin = mLeftMargin;
             layoutParams.topMargin = mTopMargin;
-            layoutParams.rightMargin = mEndMargin;
+            layoutParams.rightMargin = mRightMargin;
             layoutParams.bottomMargin = mBottomMargin;
             layoutParams.viewType = viewType;
             addView(view, layoutParams);
         }
+    }
+
+    public void setItemMargin(int leftMargin, int topMargin, int rightMargin, int bottomMargin){
+        mLeftMargin = leftMargin;
+        mTopMargin = topMargin;
+        mRightMargin = rightMargin;
+        mBottomMargin = bottomMargin;
+        update();
     }
 
     @Override

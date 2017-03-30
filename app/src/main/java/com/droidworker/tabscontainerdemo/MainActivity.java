@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         initIconTabs();
 
         initTabs();
+
     }
 
     private void initTitleTabs() {
@@ -103,6 +105,18 @@ public class MainActivity extends AppCompatActivity {
         final ViewPager viewPager = (ViewPager) findViewById(R.id.container);
         viewPager.setAdapter(sectionsPagerAdapter);
 
+        mTitleTabs.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) viewPager.getLayoutParams();
+                layoutParams.topMargin = layoutParams.topMargin + bottom - top;
+                viewPager.requestLayout();
+                mTitleTabs.removeOnLayoutChangeListener(this);
+            }
+        });
+
+
         mTitleTabs.setOnChangeListener(new TabsContainer.OnChangeListener() {
             @Override
             public void onChange(int position) {
@@ -112,12 +126,12 @@ public class MainActivity extends AppCompatActivity {
         });
         mTitleTabs.setOnOperateListener(new TabsContainer.onOperateListener() {
             @Override
-            public void onOperate(boolean isOpen) {
+            public void onOperate(final boolean isOpen) {
                 List<String> list = mTitleTabs.getVisibleTitles();
-                    mTags.clear();
-                    mTags = list;
-                    mTagFlowLayout.update();
-                    mTagFlowLayout.setVisibility(isOpen ? View.VISIBLE : View.GONE);
+                mTags.clear();
+                mTags = list;
+                mTagFlowLayout.update();
+                mTagFlowLayout.setVisibility(isOpen ? View.VISIBLE : View.GONE);
             }
         });
 
@@ -125,18 +139,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public View getItemView(ViewGroup parent, View convertView, final int position) {
                 if (convertView == null) {
-                    Log.d(TAG, "create new " + position);
                     convertView = new TextView(parent.getContext());
                     convertView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             int pos = (int) v.getTag();
-                            if(getItemViewType(pos) == 0){
+                            if (getItemViewType(pos) == 0) {
                                 int targetPos = mTitleTabs.getLastVisibleTabPosition() + pos + 1;
                                 mTitleTabs.scrollToTab(targetPos);
                             } else {
                                 mTagFlowLayout.setVisibility(View.GONE);
-                                Toast.makeText(v.getContext(), "Click add", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(v.getContext(), "Click add", Toast.LENGTH_SHORT)
+                                        .show();
                             }
                             mTitleTabs.operationDone();
                         }
@@ -165,6 +179,10 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         mTagFlowLayout.setTagAdapter(tagAdapter);
+        int verticalMargin = getResources().getDimensionPixelSize(R.dimen.vertical_margin);
+        int horizontalMargin = getResources().getDimensionPixelSize(R.dimen.horizontal_margin);
+        mTagFlowLayout.setItemMargin(horizontalMargin, verticalMargin, horizontalMargin,
+                verticalMargin);
     }
 
     private void initIconTabs() {

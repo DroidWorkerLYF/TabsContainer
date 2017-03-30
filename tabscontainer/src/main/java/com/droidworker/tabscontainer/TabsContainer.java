@@ -119,7 +119,7 @@ public class TabsContainer extends FrameLayout {
         mOpIconResId = typedArray.getResourceId(R.styleable.TabsContainer_operationIcon, 0);
         mOpRotateAngle = typedArray.getFloat(R.styleable.TabsContainer_operationRotateAngle, 0);
         mOpAnimDuration = typedArray.getInteger(R.styleable.TabsContainer_operationAnimDuration,
-                300);
+                200);
 
         typedArray.recycle();
 
