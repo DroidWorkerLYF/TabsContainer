@@ -36,7 +36,7 @@ import android.widget.TextView;
  * {@link #setTitlesAndIcons(List, List)}.
  * You can set a listener via {@link #setOnChangeListener(OnChangeListener)} to be notified when
  * tab's selection state has been changed.
- * 
+ *
  * @author https://github.com/DroidWorkerLYF
  */
 

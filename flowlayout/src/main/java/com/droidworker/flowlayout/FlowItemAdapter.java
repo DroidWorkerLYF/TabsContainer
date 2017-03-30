@@ -7,7 +7,7 @@ import android.view.ViewGroup;
  * @author https://github.com/DroidWorkerLYF
  */
 
-public abstract class TagAdapter {
+public abstract class FlowItemAdapter {
 
     public abstract View getItemView(ViewGroup parent, View convertView, int position);
 

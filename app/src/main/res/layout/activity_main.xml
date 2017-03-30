@@ -38,7 +38,7 @@
             app:tabPaddingTop="10dp"
             app:tabTextSize="16sp"/>
 
-        <com.droidworker.flowlayout.TagFlowLayout
+        <com.droidworker.flowlayout.FlowLayout
             android:id="@+id/flow_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
             app:tagLeftMargin="12dp"
             app:tagRightMargin="12dp">
 
-        </com.droidworker.flowlayout.TagFlowLayout>
+        </com.droidworker.flowlayout.FlowLayout>
 
     </android.support.design.widget.AppBarLayout>
 

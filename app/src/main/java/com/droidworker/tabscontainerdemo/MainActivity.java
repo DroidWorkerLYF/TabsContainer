@@ -3,8 +3,8 @@ package com.droidworker.tabscontainerdemo;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.droidworker.flowlayout.TagAdapter;
-import com.droidworker.flowlayout.TagFlowLayout;
+import com.droidworker.flowlayout.FlowItemAdapter;
+import com.droidworker.flowlayout.FlowLayout;
 import com.droidworker.tabscontainer.TabsContainer;
 
 import android.graphics.Color;
@@ -33,20 +33,16 @@ public class MainActivity extends AppCompatActivity {
     private TabsContainer mTitleTabs;
     private TabsContainer mIconTabs;
     private TabsContainer mTabs;
-    private TagFlowLayout mTagFlowLayout;
+    private FlowLayout mTagFlowLayout;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         // noinspection SimplifiableIfStatement
@@ -96,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         list.add("专题4");
 
         mTitleTabs = (TabsContainer) findViewById(R.id.title_tabs_container);
-        mTagFlowLayout = (TagFlowLayout) findViewById(R.id.flow_layout);
+        mTagFlowLayout = (FlowLayout) findViewById(R.id.flow_layout);
 
         mTitleTabs.setTitles(list);
 
@@ -135,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        TagAdapter tagAdapter = new TagAdapter() {
+        FlowItemAdapter flowItemAdapter = new FlowItemAdapter() {
             @Override
             public View getItemView(ViewGroup parent, View convertView, final int position) {
                 if (convertView == null) {
@@ -178,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                 return position == getSize() - 1 ? 1 : super.getItemViewType(position);
             }
         };
-        mTagFlowLayout.setTagAdapter(tagAdapter);
+        mTagFlowLayout.setFlowItemAdapter(flowItemAdapter);
         int verticalMargin = getResources().getDimensionPixelSize(R.dimen.vertical_margin);
         int horizontalMargin = getResources().getDimensionPixelSize(R.dimen.horizontal_margin);
         mTagFlowLayout.setItemMargin(horizontalMargin, verticalMargin, horizontalMargin,
@@ -306,7 +302,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
             return mList.size();
         }
 
