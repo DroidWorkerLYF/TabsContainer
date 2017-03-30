@@ -18,6 +18,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -75,6 +76,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initTitleTabs() {
+        final int verticalMargin = getResources().getDimensionPixelSize(R.dimen.vertical_margin);
+        final int horizontalMargin = getResources().getDimensionPixelSize(R.dimen.horizontal_margin);
+
         List<String> list = new ArrayList<>();
         list.add("推荐");
         list.add("电影");
@@ -82,14 +86,13 @@ public class MainActivity extends AppCompatActivity {
         list.add("动漫");
         list.add("综艺");
         list.add("资讯");
-        list.add("音乐");
         list.add("纪录片");
+        list.add("音乐");
         list.add("会员");
         list.add("排行榜");
         list.add("专题");
         list.add("专题2");
         list.add("专题3");
-        list.add("专题4");
 
         mTitleTabs = (TabsContainer) findViewById(R.id.title_tabs_container);
         mTagFlowLayout = (FlowLayout) findViewById(R.id.flow_layout);
@@ -104,14 +107,14 @@ public class MainActivity extends AppCompatActivity {
         mTitleTabs.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) viewPager.getLayoutParams();
+                    int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) viewPager
+                        .getLayoutParams();
                 layoutParams.topMargin = layoutParams.topMargin + bottom - top;
                 viewPager.requestLayout();
                 mTitleTabs.removeOnLayoutChangeListener(this);
             }
         });
-
 
         mTitleTabs.setOnChangeListener(new TabsContainer.OnChangeListener() {
             @Override
@@ -134,8 +137,18 @@ public class MainActivity extends AppCompatActivity {
         FlowItemAdapter flowItemAdapter = new FlowItemAdapter() {
             @Override
             public View getItemView(ViewGroup parent, View convertView, final int position) {
+                final int viewType = getItemViewType(position);
                 if (convertView == null) {
                     convertView = new TextView(parent.getContext());
+                    if(viewType == 0){
+                        FlowLayout.FlowLayoutParams flowLayoutParams = new FlowLayout.FlowLayoutParams(
+                                getResources().getDimensionPixelSize(R.dimen.item_width),
+                                FlowLayout.FlowLayoutParams.WRAP_CONTENT);
+                        flowLayoutParams.topMargin = verticalMargin;
+                        flowLayoutParams.bottomMargin = verticalMargin;
+                        convertView.setLayoutParams(flowLayoutParams);
+                    }
+
                     convertView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -153,10 +166,11 @@ public class MainActivity extends AppCompatActivity {
                     });
                 }
                 TextView textView = (TextView) convertView;
-                if (getItemViewType(position) == 0) {
+                if (viewType == 0) {
                     textView.setText(mTags.get(position));
                     textView.setTextColor(Color.LTGRAY);
                     textView.setTextSize(16);
+                    textView.setGravity(Gravity.CENTER);
                 } else {
                     textView.setBackgroundResource(R.drawable.ic_add_white_24dp);
                 }
@@ -175,8 +189,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         mTagFlowLayout.setFlowItemAdapter(flowItemAdapter);
-        int verticalMargin = getResources().getDimensionPixelSize(R.dimen.vertical_margin);
-        int horizontalMargin = getResources().getDimensionPixelSize(R.dimen.horizontal_margin);
         mTagFlowLayout.setItemMargin(horizontalMargin, verticalMargin, horizontalMargin,
                 verticalMargin);
     }

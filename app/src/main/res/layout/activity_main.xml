@@ -33,10 +33,9 @@
             app:operationIcon="@drawable/ic_expand_more_24dp"
             app:operationRotateAngle="180"
             app:tabPaddingBottom="10dp"
-            app:tabPaddingEnd="12dp"
-            app:tabPaddingStart="12dp"
             app:tabPaddingTop="10dp"
-            app:tabTextSize="16sp"/>
+            app:tabTextSize="16sp"
+            app:tabWidth="@dimen/item_width"/>
 
         <com.droidworker.flowlayout.FlowLayout
             android:id="@+id/flow_layout"

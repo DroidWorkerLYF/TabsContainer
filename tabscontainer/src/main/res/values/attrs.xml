@@ -10,7 +10,7 @@
         <attr name="tabPaddingEnd" format="dimension"/>
         <attr name="tabPaddingBottom" format="dimension"/>
         <attr name="tabMinWidth" format="dimension"/>
-        <attr name="tabTitleMaxWidth" format="dimension"/>
+        <attr name="tabWidth" format="dimension"/>
         <attr name="tabTitleMarginTop" format="dimension"/>
         <attr name="tabBackground" format="reference"/>
         <attr name="indicatorColor" format="reference"/>

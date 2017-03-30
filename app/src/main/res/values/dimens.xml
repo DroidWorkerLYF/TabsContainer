@@ -7,4 +7,5 @@
     <dimen name="test_indicator_height">4dp</dimen>
     <dimen name="vertical_margin">10dp</dimen>
     <dimen name="horizontal_margin">12dp</dimen>
+    <dimen name="item_width">60dp</dimen>
 </resources>

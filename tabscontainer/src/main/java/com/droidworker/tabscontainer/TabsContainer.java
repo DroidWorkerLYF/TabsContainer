@@ -42,7 +42,6 @@ import android.widget.TextView;
 
 public class TabsContainer extends FrameLayout {
     // TODO 支持ViewPager，支持传入一个Adapter是的自定义布局更灵活，考虑标准布局也支持使用Adapter。
-    // TODO 支持比例，让所有tab可以均分屏宽
     private static final int DEFAULT_POSITION = 0;
     private static final int SPLIT_WRAP = 0;
     private static final int SPLIT_AVERAGE = 1;
@@ -54,7 +53,7 @@ public class TabsContainer extends FrameLayout {
     private int mTabPaddingEnd;
     private int mTabPaddingBottom;
     private int mTabMinWidth;
-    private int mTabTitleMaxWidth;
+    private int mTabWidth;
     private int mTabTitleMarginTop;
     private int mTabBackgroundResId;
     private int mIndicatorColor;
@@ -106,8 +105,8 @@ public class TabsContainer extends FrameLayout {
             mTabPaddingStart = mTabPaddingTop = mTabPaddingEnd = mTabPaddingBottom = tabPadding;
         }
         mTabMinWidth = typedArray.getDimensionPixelSize(R.styleable.TabsContainer_tabMinWidth, 0);
-        mTabTitleMaxWidth = typedArray
-                .getDimensionPixelSize(R.styleable.TabsContainer_tabTitleMaxWidth, 0);
+        mTabWidth = typedArray
+                .getDimensionPixelSize(R.styleable.TabsContainer_tabWidth, 0);
         mTabTitleMarginTop = typedArray.getDimensionPixelSize(
                 R.styleable.TabsContainer_tabTitleMarginTop,
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6,
@@ -131,6 +130,10 @@ public class TabsContainer extends FrameLayout {
                 200);
 
         typedArray.recycle();
+
+        if(mTabMinWidth > mTabWidth){
+            throw new IllegalStateException("Tab's minimum with larger than it's width");
+        }
 
         // create tabs container
         mRecyclerView = new RecyclerView(context);
@@ -503,16 +506,7 @@ public class TabsContainer extends FrameLayout {
 
             if ((type & TabType.ICON) == TabType.ICON) {
                 ImageView iconView = new ImageView(itemView.getContext());
-                LinearLayout.LayoutParams layoutParams;
-                if (mTabSplitWay == SPLIT_AVERAGE) {
-                    layoutParams = new LinearLayout.LayoutParams(
-                            mRecyclerView.getMeasuredWidth() / mTabLayoutAdapter.getItemCount(),
-                            LinearLayout.LayoutParams.WRAP_CONTENT);
-                } else {
-                    layoutParams = new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT);
-                }
+                LinearLayout.LayoutParams layoutParams = generateLayoutParams();
                 layoutParams.gravity = Gravity.CENTER;
                 linearLayout.addView(iconView, 0, layoutParams);
                 iconView.setPadding(mTabPaddingStart, mTabPaddingTop, mTabPaddingEnd,
@@ -525,12 +519,7 @@ public class TabsContainer extends FrameLayout {
                 textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTabTextSize);
                 textView.setTextColor(mTabColor);
                 textView.setGravity(Gravity.CENTER);
-                if (mTabTitleMaxWidth != 0) {
-                    textView.setMaxWidth(mTabTitleMaxWidth);
-                }
-                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                LinearLayout.LayoutParams layoutParams = generateLayoutParams();
                 layoutParams.gravity = Gravity.CENTER;
                 if (mIconView != null) {
                     layoutParams.topMargin = mTabTitleMarginTop;
@@ -544,6 +533,24 @@ public class TabsContainer extends FrameLayout {
                 linearLayout.addView(textView, layoutParams);
                 mTitleView = textView;
             }
+        }
+
+        private LinearLayout.LayoutParams generateLayoutParams(){
+            LinearLayout.LayoutParams layoutParams;
+            if(mTabSplitWay == SPLIT_AVERAGE){
+                layoutParams = new LinearLayout.LayoutParams(
+                        mRecyclerView.getMeasuredWidth() / mTabLayoutAdapter.getItemCount(),
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+            } else if(mTabWidth != 0){
+                layoutParams = new LinearLayout.LayoutParams(
+                        mTabWidth,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+            } else {
+                layoutParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT);
+            }
+            return layoutParams;
         }
 
         /**

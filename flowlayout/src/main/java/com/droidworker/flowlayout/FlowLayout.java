@@ -167,11 +167,14 @@ public class FlowLayout extends ViewGroup {
             Queue<View> queue = mCachedViews.get(viewType);
             View element = queue == null ? null : queue.poll();
             View view = mFlowItemAdapter.getItemView(this, element, i);
-            FlowLayoutParams layoutParams = (FlowLayoutParams) generateDefaultLayoutParams();
-            layoutParams.leftMargin = mLeftMargin;
-            layoutParams.topMargin = mTopMargin;
-            layoutParams.rightMargin = mRightMargin;
-            layoutParams.bottomMargin = mBottomMargin;
+            FlowLayoutParams layoutParams = (FlowLayoutParams) view.getLayoutParams();
+            if(view.getLayoutParams() == null){
+                layoutParams = (FlowLayoutParams) generateDefaultLayoutParams();
+                layoutParams.leftMargin = mLeftMargin;
+                layoutParams.topMargin = mTopMargin;
+                layoutParams.rightMargin = mRightMargin;
+                layoutParams.bottomMargin = mBottomMargin;
+            }
             layoutParams.viewType = viewType;
             addView(view, layoutParams);
         }
