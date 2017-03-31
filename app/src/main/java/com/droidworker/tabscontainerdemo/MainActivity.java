@@ -10,6 +10,7 @@ import com.droidworker.tabscontainer.TabsContainer;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -36,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     private TabsContainer mTabs;
     private FlowLayout mTagFlowLayout;
     private FlowItemAdapter mFlowItemAdapter;
+    private AppBarLayout mAppBarLayout;
+    private Toolbar mToolbar;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -65,8 +68,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+
+        mAppBarLayout = (AppBarLayout) findViewById(R.id.appbar);
 
         initTitleTabs();
 
@@ -110,12 +115,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom,
                     int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                mTitleTabs.removeOnLayoutChangeListener(this);
+
                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) viewPager
                         .getLayoutParams();
                 layoutParams.topMargin = layoutParams.topMargin + bottom - top;
                 viewPager.requestLayout();
-                mTitleTabs.removeOnLayoutChangeListener(this);
-                mTags.addAll(list.subList(mTitleTabs.getLastCompleteVisibleTabPosition() + 1, list.size()));
+
+                mTags.addAll(list.subList(mTitleTabs.getLastCompleteVisibleTabPosition() + 1,
+                        list.size()));
                 mTagFlowLayout.setFlowItemAdapter(mFlowItemAdapter);
             }
         });
@@ -133,10 +141,6 @@ public class MainActivity extends AppCompatActivity {
         mTitleTabs.setOnOperateListener(new TabsContainer.OnOperateListener() {
             @Override
             public void onOperate(final boolean isOpen) {
-                // List<String> list = mTitleTabs.getVisibleTitles();
-                // mTags.clear();
-                // mTags = list;
-                // mTagFlowLayout.update();
                 if (isOpen) {
                     mTitleTabs.scrollToTab(0, true);
                     mTitleTabs.post(new Runnable() {
@@ -144,12 +148,12 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             int pos = mTitleTabs.getSelectedPosition()
                                     - mTitleTabs.getLastVisibleTabPosition() - 1;
-                            if(pos >= 0){
+                            if (pos >= 0) {
                                 mTitleTabs.hideIndicator();
                             }
                             mTagFlowLayout.updateSelectedPosition(pos);
-                            mTagFlowLayout.setVisibility(View.VISIBLE);
                             mTagFlowLayout.update();
+                            mTagFlowLayout.setVisibility(View.VISIBLE);
                         }
                     });
                 } else {
@@ -166,13 +170,11 @@ public class MainActivity extends AppCompatActivity {
                 final int viewType = getItemViewType(position);
                 if (convertView == null) {
                     convertView = new TextView(parent.getContext());
-//                    if (viewType == 0) {
-                        FlowLayout.FlowLayoutParams flowLayoutParams = new FlowLayout.FlowLayoutParams(
-                                FlowLayout.FlowLayoutParams.WRAP_CONTENT,
-                                FlowLayout.FlowLayoutParams.WRAP_CONTENT);
-                        convertView.setLayoutParams(flowLayoutParams);
-                        convertView.setPadding(0, verticalMargin, 0, verticalMargin);
-//                    }
+                    FlowLayout.FlowLayoutParams flowLayoutParams = new FlowLayout.FlowLayoutParams(
+                            FlowLayout.FlowLayoutParams.WRAP_CONTENT,
+                            FlowLayout.FlowLayoutParams.WRAP_CONTENT);
+                    convertView.setLayoutParams(flowLayoutParams);
+                    convertView.setPadding(0, verticalMargin, 0, verticalMargin);
 
                     convertView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -195,8 +197,8 @@ public class MainActivity extends AppCompatActivity {
                 textView.setGravity(Gravity.CENTER);
                 if (viewType == 0) {
                     textView.setText(mTags.get(position));
-                    if(position == mTitleTabs.getSelectedPosition()
-                            - mTitleTabs.getLastVisibleTabPosition() - 1){
+                    if (position == mTitleTabs.getSelectedPosition()
+                            - mTitleTabs.getLastVisibleTabPosition() - 1) {
                         textView.setTextColor(Color.WHITE);
                     } else {
                         textView.setTextColor(Color.LTGRAY);
@@ -220,7 +222,6 @@ public class MainActivity extends AppCompatActivity {
                 return position == getSize() - 1 ? 1 : super.getItemViewType(position);
             }
         };
-//        mTagFlowLayout.setFlowItemAdapter(flowItemAdapter);
         mTagFlowLayout.setItemMargin(horizontalMargin, verticalMargin, horizontalMargin,
                 verticalMargin);
     }

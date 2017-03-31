@@ -12,14 +12,13 @@
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:paddingTop="@dimen/appbar_padding_top"
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay">
 
         </android.support.v7.widget.Toolbar>
@@ -29,13 +28,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
+            android:background="?attr/colorPrimary"
             app:operationAnimDuration="300"
             app:operationIcon="@drawable/ic_expand_more_24dp"
             app:operationRotateAngle="180"
             app:tabPaddingBottom="10dp"
-            app:tabPaddingTop="10dp"
-            app:tabPaddingStart="@dimen/horizontal_margin"
             app:tabPaddingEnd="@dimen/horizontal_margin"
+            app:tabPaddingStart="@dimen/horizontal_margin"
+            app:tabPaddingTop="10dp"
             app:tabTextSize="14sp"
             app:tabWidth="@dimen/item_width"/>
 
@@ -43,11 +43,12 @@
             android:id="@+id/flow_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
             android:visibility="gone"
-            app:tagTopMargin="10dp"
             app:tagBottomMargin="10dp"
             app:tagLeftMargin="12dp"
-            app:tagRightMargin="12dp">
+            app:tagRightMargin="12dp"
+            app:tagTopMargin="10dp">
 
         </com.droidworker.flowlayout.FlowLayout>
 
@@ -82,12 +83,12 @@
             android:id="@+id/tabs_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
             android:layout_marginTop="10dp"
+            android:background="?attr/colorPrimary"
             app:tabPaddingBottom="10dp"
             app:tabPaddingTop="10dp"
-            app:tabTextSize="14sp"
-            app:tabSplitWay="average"/>
+            app:tabSplitWay="average"
+            app:tabTextSize="14sp"/>
 
     </LinearLayout>
 

@@ -16,12 +16,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
@@ -121,7 +121,7 @@ public class TabsContainer extends FrameLayout {
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2,
                         getResources().getDisplayMetrics()));
         mIndicatorAnimDuration = typedArray
-                .getInteger(R.styleable.TabsContainer_indicatorAnimDuration, 100);
+                .getInteger(R.styleable.TabsContainer_indicatorAnimDuration, 300);
         // initialize operation's properties
         mOpIconResId = typedArray.getResourceId(R.styleable.TabsContainer_operationIcon, 0);
         mOpRotateAngle = typedArray.getFloat(R.styleable.TabsContainer_operationRotateAngle, 0);
@@ -168,6 +168,21 @@ public class TabsContainer extends FrameLayout {
                 }
             });
         }
+
+        post(new Runnable() {
+            @Override
+            public void run() {
+                if (mOpView != null) {
+                    FrameLayout.LayoutParams layoutParams = (LayoutParams) mRecyclerView
+                            .getLayoutParams();
+                    layoutParams.rightMargin = mOpView.getMeasuredWidth();
+                    mRecyclerView.setLayoutParams(layoutParams);
+                    requestLayout();
+                }
+
+                moveIndicator(false);
+            }
+        });
     }
 
     private Animation getRotateAnim() {
@@ -179,21 +194,6 @@ public class TabsContainer extends FrameLayout {
         animation.setFillAfter(true);
         animation.setFillBefore(true);
         return animation;
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-
-        if (mOpView != null) {
-            FrameLayout.LayoutParams layoutParams = (LayoutParams) mRecyclerView
-                    .getLayoutParams();
-            layoutParams.rightMargin = mOpView.getMeasuredWidth();
-            mRecyclerView.setLayoutParams(layoutParams);
-            requestLayout();
-        }
-
-        moveIndicator(false);
     }
 
     public void setTitles(List<String> titles) {
@@ -250,12 +250,12 @@ public class TabsContainer extends FrameLayout {
             int halfWidth = targetViewHolder.itemView.getWidth() / 2;
             int centerX = (int) (mRecyclerView.getWidth() / 2 + mRecyclerView.getX());
 
-            if(right < centerX){
+            if (right < centerX) {
                 offset = -(centerX - right + halfWidth);
-            } else if(left > centerX){
+            } else if (left > centerX) {
                 offset = left - centerX + halfWidth;
             } else {
-                if(centerX - left > halfWidth){
+                if (centerX - left > halfWidth) {
                     offset = -(centerX - left - halfWidth);
                 } else {
                     offset = right - centerX - halfWidth;
@@ -381,7 +381,7 @@ public class TabsContainer extends FrameLayout {
                 .findLastVisibleItemPosition();
     }
 
-    public int getLastCompleteVisibleTabPosition(){
+    public int getLastCompleteVisibleTabPosition() {
         return ((LinearLayoutManager) mRecyclerView.getLayoutManager())
                 .findLastCompletelyVisibleItemPosition();
     }
@@ -405,15 +405,16 @@ public class TabsContainer extends FrameLayout {
     private void moveIndicator(final boolean animated) {
         final RecyclerView.ViewHolder viewHolder = mRecyclerView
                 .findViewHolderForAdapterPosition(mSelectedPosition);
-        if(viewHolder == null){
+        if (viewHolder == null) {
             return;
         }
         final LayoutParams layoutParams = (LayoutParams) mIndicator.getLayoutParams();
         layoutParams.width = viewHolder.itemView.getWidth();
-        if (animated) {
+        if (animated && layoutParams.leftMargin != viewHolder.itemView.getLeft()) {
             ValueAnimator valueAnimator = ValueAnimator
                     .ofInt(layoutParams.leftMargin, viewHolder.itemView.getLeft())
                     .setDuration(mIndicatorAnimDuration);
+            valueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
             valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator valueAnimator) {
