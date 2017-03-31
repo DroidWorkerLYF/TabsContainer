@@ -6,5 +6,7 @@
         <attr name="tagTopMargin" format="dimension"/>
         <attr name="tagRightMargin" format="dimension"/>
         <attr name="tagBottomMargin" format="dimension"/>
+        <attr name="indicatorColor" format="reference"/>
+        <attr name="indicatorHeight" format="dimension"/>
     </declare-styleable>
 </resources>

@@ -16,6 +16,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -167,21 +168,6 @@ public class TabsContainer extends FrameLayout {
                 }
             });
         }
-
-        // we don't know mOpView'size and indicator's width so post to handler
-        post(new Runnable() {
-            @Override
-            public void run() {
-                if (mOpView != null) {
-                    FrameLayout.LayoutParams layoutParams = (LayoutParams) mRecyclerView
-                            .getLayoutParams();
-                    layoutParams.rightMargin = mOpView.getWidth();
-                    mRecyclerView.requestLayout();
-                }
-
-                moveIndicator(false);
-            }
-        });
     }
 
     private Animation getRotateAnim() {
@@ -193,6 +179,21 @@ public class TabsContainer extends FrameLayout {
         animation.setFillAfter(true);
         animation.setFillBefore(true);
         return animation;
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+
+        if (mOpView != null) {
+            FrameLayout.LayoutParams layoutParams = (LayoutParams) mRecyclerView
+                    .getLayoutParams();
+            layoutParams.rightMargin = mOpView.getMeasuredWidth();
+            mRecyclerView.setLayoutParams(layoutParams);
+            requestLayout();
+        }
+
+        moveIndicator(false);
     }
 
     public void setTitles(List<String> titles) {
@@ -227,6 +228,10 @@ public class TabsContainer extends FrameLayout {
      * @param tabPosition position which you want to be selected
      */
     public void scrollToTab(final int tabPosition) {
+        scrollToTab(tabPosition, false);
+    }
+
+    public void scrollToTab(final int tabPosition, final boolean scrollOnly) {
         RecyclerView.ViewHolder targetViewHolder = mRecyclerView
                 .findViewHolderForAdapterPosition(tabPosition);
         if (targetViewHolder == null) {
@@ -234,25 +239,39 @@ public class TabsContainer extends FrameLayout {
             post(new Runnable() {
                 @Override
                 public void run() {
-                    scrollToTab(tabPosition);
+                    scrollToTab(tabPosition, scrollOnly);
                 }
             });
-            return;
         } else {
-            int offset = 0;
+            int offset;
 
-            if (targetViewHolder.itemView
-                    .getLeft() != ((LayoutParams) mIndicator.getLayoutParams()).leftMargin) {
-                if (targetViewHolder.itemView.getLeft() < 0) {
-                    offset = -targetViewHolder.itemView.getWidth();
-                } else if (targetViewHolder.itemView.getRight() > mRecyclerView.getWidth()) {
-                    offset = targetViewHolder.itemView.getWidth();
+            int left = targetViewHolder.itemView.getLeft();
+            int right = targetViewHolder.itemView.getRight();
+            int halfWidth = targetViewHolder.itemView.getWidth() / 2;
+            int centerX = (int) (mRecyclerView.getWidth() / 2 + mRecyclerView.getX());
+
+            if(right < centerX){
+                offset = -(centerX - right + halfWidth);
+            } else if(left > centerX){
+                offset = left - centerX + halfWidth;
+            } else {
+                if(centerX - left > halfWidth){
+                    offset = -(centerX - left - halfWidth);
+                } else {
+                    offset = right - centerX - halfWidth;
                 }
             }
 
             mRecyclerView.scrollBy(offset, 0);
-        }
 
+            if (!scrollOnly) {
+                onChange(tabPosition);
+            }
+            moveIndicator();
+        }
+    }
+
+    private void onChange(int tabPosition) {
         if (tabPosition != mSelectedPosition) {
             int prePos = mSelectedPosition;
             mSelectedPosition = tabPosition;
@@ -263,7 +282,6 @@ public class TabsContainer extends FrameLayout {
                 mOnChangeListener.onChange(tabPosition);
             }
         }
-        moveIndicator();
     }
 
     public void setTabTextSize(float textSize) {
@@ -306,6 +324,9 @@ public class TabsContainer extends FrameLayout {
         mIsOpen = false;
         Animation animation = getRotateAnim();
         mOpView.startAnimation(animation);
+        if (mOnOperateListener != null) {
+            mOnOperateListener.onOperate(mIsOpen);
+        }
     }
 
     /**
@@ -360,6 +381,19 @@ public class TabsContainer extends FrameLayout {
                 .findLastVisibleItemPosition();
     }
 
+    public int getLastCompleteVisibleTabPosition(){
+        return ((LinearLayoutManager) mRecyclerView.getLayoutManager())
+                .findLastCompletelyVisibleItemPosition();
+    }
+
+    public void showIndicator() {
+        mIndicator.setVisibility(View.VISIBLE);
+    }
+
+    public void hideIndicator() {
+        mIndicator.setVisibility(View.INVISIBLE);
+    }
+
     private void moveIndicator() {
         moveIndicator(true);
     }
@@ -371,6 +405,9 @@ public class TabsContainer extends FrameLayout {
     private void moveIndicator(final boolean animated) {
         final RecyclerView.ViewHolder viewHolder = mRecyclerView
                 .findViewHolderForAdapterPosition(mSelectedPosition);
+        if(viewHolder == null){
+            return;
+        }
         final LayoutParams layoutParams = (LayoutParams) mIndicator.getLayoutParams();
         layoutParams.width = viewHolder.itemView.getWidth();
         if (animated) {

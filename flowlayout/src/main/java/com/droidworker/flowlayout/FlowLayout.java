@@ -5,8 +5,13 @@ import java.util.Queue;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.SparseArray;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -20,8 +25,13 @@ public class FlowLayout extends ViewGroup {
     private int mTopMargin;
     private int mRightMargin;
     private int mBottomMargin;
+    private int mSelectedPosition = -1;
     private FlowItemAdapter mFlowItemAdapter;
     private SparseArray<Queue<View>> mCachedViews = new SparseArray<>();
+    private int mIndicatorColor;
+    private int mIndicatorHeight;
+    private Paint mIndicatorPaint;
+    private Rect mIndicatorRect;
 
     public FlowLayout(Context context) {
         this(context, null, 0);
@@ -34,6 +44,7 @@ public class FlowLayout extends ViewGroup {
     public FlowLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
+        setWillNotDraw(false);
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.FlowLayout);
         int margin = typedArray.getDimensionPixelSize(R.styleable.FlowLayout_tagMargin, 0);
         if (margin == 0) {
@@ -46,7 +57,18 @@ public class FlowLayout extends ViewGroup {
         } else {
             mLeftMargin = mTopMargin = mRightMargin = mBottomMargin = margin;
         }
+        mIndicatorColor = typedArray.getResourceId(R.styleable.FlowLayout_indicatorColor,
+                Color.WHITE);
+        mIndicatorHeight = typedArray.getDimensionPixelSize(R.styleable.FlowLayout_indicatorHeight,
+                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2,
+                        getResources().getDisplayMetrics()));
         typedArray.recycle();
+
+        mIndicatorPaint = new Paint();
+        mIndicatorPaint.setAntiAlias(true);
+        mIndicatorPaint.setColor(mIndicatorColor);
+        mIndicatorPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        mIndicatorRect = new Rect();
     }
 
     @Override
@@ -136,18 +158,42 @@ public class FlowLayout extends ViewGroup {
     }
 
     @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+
+        if (mSelectedPosition >= 0) {
+            View child = getChildAt(mSelectedPosition);
+            mIndicatorRect.set(child.getLeft(), child.getBottom() - mIndicatorHeight,
+                    child.getRight(), child.getBottom());
+            canvas.drawRect(mIndicatorRect, mIndicatorPaint);
+        }
+    }
+
+    @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
         mCachedViews.clear();
     }
 
-    public void setFlowItemAdapter(FlowItemAdapter flowItemAdapter) {
-        mFlowItemAdapter = flowItemAdapter;
-        update();
+    public void updateSelectedPosition(int position) {
+        mSelectedPosition = position;
+        if (position < 0) {
+            mIndicatorRect.set(0, 0, 0, 0);
+            return;
+        }
+        invalidate();
     }
 
-    public void update() {
+    public void setFlowItemAdapter(FlowItemAdapter flowItemAdapter) {
+        mFlowItemAdapter = flowItemAdapter;
+        updateInternal();
+    }
+
+    private void updateInternal() {
+        if(mFlowItemAdapter == null){
+            return;
+        }
         if (getChildCount() > 0) {
             int count = getChildCount();
             for (int i = 0; i < count; i++) {
@@ -168,7 +214,7 @@ public class FlowLayout extends ViewGroup {
             View element = queue == null ? null : queue.poll();
             View view = mFlowItemAdapter.getItemView(this, element, i);
             FlowLayoutParams layoutParams = (FlowLayoutParams) view.getLayoutParams();
-            if(view.getLayoutParams() == null){
+            if (view.getLayoutParams() == null) {
                 layoutParams = (FlowLayoutParams) generateDefaultLayoutParams();
                 layoutParams.leftMargin = mLeftMargin;
                 layoutParams.topMargin = mTopMargin;
@@ -180,12 +226,20 @@ public class FlowLayout extends ViewGroup {
         }
     }
 
+    public void update(){
+        int count = getChildCount();
+        for(int i = 0; i < count; i++){
+            View child = getChildAt(i);
+            mFlowItemAdapter.getItemView(this, child, i);
+        }
+    }
+
     public void setItemMargin(int leftMargin, int topMargin, int rightMargin, int bottomMargin) {
         mLeftMargin = leftMargin;
         mTopMargin = topMargin;
         mRightMargin = rightMargin;
         mBottomMargin = bottomMargin;
-        update();
+        updateInternal();
     }
 
     @Override

@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private TabsContainer mIconTabs;
     private TabsContainer mTabs;
     private FlowLayout mTagFlowLayout;
+    private FlowItemAdapter mFlowItemAdapter;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -77,9 +78,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void initTitleTabs() {
         final int verticalMargin = getResources().getDimensionPixelSize(R.dimen.vertical_margin);
-        final int horizontalMargin = getResources().getDimensionPixelSize(R.dimen.horizontal_margin);
+        final int horizontalMargin = getResources()
+                .getDimensionPixelSize(R.dimen.horizontal_margin);
 
-        List<String> list = new ArrayList<>();
+        final List<String> list = new ArrayList<>();
         list.add("推荐");
         list.add("电影");
         list.add("电视剧");
@@ -113,6 +115,8 @@ public class MainActivity extends AppCompatActivity {
                 layoutParams.topMargin = layoutParams.topMargin + bottom - top;
                 viewPager.requestLayout();
                 mTitleTabs.removeOnLayoutChangeListener(this);
+                mTags.addAll(list.subList(mTitleTabs.getLastCompleteVisibleTabPosition() + 1, list.size()));
+                mTagFlowLayout.setFlowItemAdapter(mFlowItemAdapter);
             }
         });
 
@@ -120,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChange(int position) {
                 viewPager.setCurrentItem(position, true);
-                if(mTagFlowLayout.getVisibility() == View.VISIBLE){
+                if (mTagFlowLayout.getVisibility() == View.VISIBLE) {
                     mTagFlowLayout.setVisibility(View.GONE);
                     mTitleTabs.operationDone();
                 }
@@ -129,27 +133,46 @@ public class MainActivity extends AppCompatActivity {
         mTitleTabs.setOnOperateListener(new TabsContainer.OnOperateListener() {
             @Override
             public void onOperate(final boolean isOpen) {
-                List<String> list = mTitleTabs.getVisibleTitles();
-                mTags.clear();
-                mTags = list;
-                mTagFlowLayout.update();
-                mTagFlowLayout.setVisibility(isOpen ? View.VISIBLE : View.GONE);
+                // List<String> list = mTitleTabs.getVisibleTitles();
+                // mTags.clear();
+                // mTags = list;
+                // mTagFlowLayout.update();
+                if (isOpen) {
+                    mTitleTabs.scrollToTab(0, true);
+                    mTitleTabs.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            int pos = mTitleTabs.getSelectedPosition()
+                                    - mTitleTabs.getLastVisibleTabPosition() - 1;
+                            if(pos >= 0){
+                                mTitleTabs.hideIndicator();
+                            }
+                            mTagFlowLayout.updateSelectedPosition(pos);
+                            mTagFlowLayout.setVisibility(View.VISIBLE);
+                            mTagFlowLayout.update();
+                        }
+                    });
+                } else {
+                    mTitleTabs.scrollToTab(mTitleTabs.getSelectedPosition(), true);
+                    mTitleTabs.showIndicator();
+                    mTagFlowLayout.setVisibility(View.GONE);
+                }
             }
         });
 
-        FlowItemAdapter flowItemAdapter = new FlowItemAdapter() {
+        mFlowItemAdapter = new FlowItemAdapter() {
             @Override
             public View getItemView(ViewGroup parent, View convertView, final int position) {
                 final int viewType = getItemViewType(position);
                 if (convertView == null) {
                     convertView = new TextView(parent.getContext());
-                    if(viewType == 0){
+//                    if (viewType == 0) {
                         FlowLayout.FlowLayoutParams flowLayoutParams = new FlowLayout.FlowLayoutParams(
                                 FlowLayout.FlowLayoutParams.WRAP_CONTENT,
                                 FlowLayout.FlowLayoutParams.WRAP_CONTENT);
                         convertView.setLayoutParams(flowLayoutParams);
-                        convertView.setPadding(0, verticalMargin, 0 ,verticalMargin);
-                    }
+                        convertView.setPadding(0, verticalMargin, 0, verticalMargin);
+//                    }
 
                     convertView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -168,14 +191,20 @@ public class MainActivity extends AppCompatActivity {
                     });
                 }
                 TextView textView = (TextView) convertView;
+                textView.setMinWidth(getResources().getDimensionPixelSize(R.dimen.item_width));
+                textView.setGravity(Gravity.CENTER);
                 if (viewType == 0) {
                     textView.setText(mTags.get(position));
-                    textView.setTextColor(Color.LTGRAY);
-                    textView.setTextSize(16);
-                    textView.setGravity(Gravity.CENTER);
-                    textView.setMinWidth(getResources().getDimensionPixelSize(R.dimen.item_width));
+                    if(position == mTitleTabs.getSelectedPosition()
+                            - mTitleTabs.getLastVisibleTabPosition() - 1){
+                        textView.setTextColor(Color.WHITE);
+                    } else {
+                        textView.setTextColor(Color.LTGRAY);
+                    }
+                    textView.setTextSize(14);
                 } else {
-                    textView.setBackgroundResource(R.drawable.ic_add_white_24dp);
+                    textView.setText("+");
+                    textView.setTextSize(16);
                 }
                 convertView.setTag(position);
                 return textView;
@@ -191,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
                 return position == getSize() - 1 ? 1 : super.getItemViewType(position);
             }
         };
-        mTagFlowLayout.setFlowItemAdapter(flowItemAdapter);
+//        mTagFlowLayout.setFlowItemAdapter(flowItemAdapter);
         mTagFlowLayout.setItemMargin(horizontalMargin, verticalMargin, horizontalMargin,
                 verticalMargin);
     }
