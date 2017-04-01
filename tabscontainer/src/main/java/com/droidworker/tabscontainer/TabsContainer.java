@@ -329,6 +329,10 @@ public class TabsContainer extends FrameLayout {
         }
     }
 
+    public boolean isOpen(){
+        return mIsOpen;
+    }
+
     /**
      * Reset to initialize state.
      */

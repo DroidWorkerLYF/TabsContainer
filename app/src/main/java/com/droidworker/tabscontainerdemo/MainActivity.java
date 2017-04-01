@@ -7,10 +7,10 @@ import com.droidworker.flowlayout.FlowItemAdapter;
 import com.droidworker.flowlayout.FlowLayout;
 import com.droidworker.tabscontainer.TabsContainer;
 
+import android.animation.ValueAnimator;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -25,6 +25,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,8 +39,18 @@ public class MainActivity extends AppCompatActivity {
     private TabsContainer mTabs;
     private FlowLayout mTagFlowLayout;
     private FlowItemAdapter mFlowItemAdapter;
-    private AppBarLayout mAppBarLayout;
-    private Toolbar mToolbar;
+    private int mFlowLayoutHeight;
+    private View.OnLayoutChangeListener mOnLayoutChangeListener = new View.OnLayoutChangeListener() {
+        @Override
+        public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
+                                   int oldTop, int oldRight, int oldBottom) {
+            mFlowLayoutHeight = bottom - top;
+            Log.d(TAG, "height " + mFlowLayoutHeight);
+            if (mFlowLayoutHeight != 0) {
+                mTagFlowLayout.removeOnLayoutChangeListener(this);
+            }
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -50,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        // noinspection SimplifiableIfStatement
         if (id == R.id.action_reset) {
             mTitleTabs.reset();
             mIconTabs.reset();
@@ -68,10 +79,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
-
-        mAppBarLayout = (AppBarLayout) findViewById(R.id.appbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         initTitleTabs();
 
@@ -83,8 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initTitleTabs() {
         final int verticalMargin = getResources().getDimensionPixelSize(R.dimen.vertical_margin);
-        final int horizontalMargin = getResources()
-                .getDimensionPixelSize(R.dimen.horizontal_margin);
+        final int horizontalMargin = getResources().getDimensionPixelSize(R.dimen.horizontal_margin);
 
         final List<String> list = new ArrayList<>();
         list.add("推荐");
@@ -114,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         mTitleTabs.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                    int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
                 mTitleTabs.removeOnLayoutChangeListener(this);
 
                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) viewPager
@@ -127,12 +135,13 @@ public class MainActivity extends AppCompatActivity {
                 mTagFlowLayout.setFlowItemAdapter(mFlowItemAdapter);
             }
         });
+        mTagFlowLayout.addOnLayoutChangeListener(mOnLayoutChangeListener);
 
         mTitleTabs.setOnChangeListener(new TabsContainer.OnChangeListener() {
             @Override
             public void onChange(int position) {
                 viewPager.setCurrentItem(position, true);
-                if (mTagFlowLayout.getVisibility() == View.VISIBLE) {
+                if (mTitleTabs.isOpen()) {
                     mTagFlowLayout.setVisibility(View.GONE);
                     mTitleTabs.operationDone();
                 }
@@ -141,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
         mTitleTabs.setOnOperateListener(new TabsContainer.OnOperateListener() {
             @Override
             public void onOperate(final boolean isOpen) {
+                int start, end;
                 if (isOpen) {
                     mTitleTabs.scrollToTab(0, true);
                     mTitleTabs.post(new Runnable() {
@@ -156,11 +166,28 @@ public class MainActivity extends AppCompatActivity {
                             mTagFlowLayout.setVisibility(View.VISIBLE);
                         }
                     });
+
+                    start = 0;
+                    end = mFlowLayoutHeight;
                 } else {
                     mTitleTabs.scrollToTab(mTitleTabs.getSelectedPosition(), true);
                     mTitleTabs.showIndicator();
-                    mTagFlowLayout.setVisibility(View.GONE);
+
+                    start = mFlowLayoutHeight;
+                    end = 0;
                 }
+
+                ValueAnimator valueAnimator = ValueAnimator.ofInt(start, end).setDuration(200);
+                valueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+                valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                        mTagFlowLayout.getLayoutParams().height = (int) valueAnimator
+                                .getAnimatedValue();
+                        mTagFlowLayout.requestLayout();
+                    }
+                });
+                valueAnimator.start();
             }
         });
 
@@ -317,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
+                                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             TextView textView = (TextView) rootView.findViewById(R.id.section_label);
             textView.setText(String.format(getString(R.string.section_format),
