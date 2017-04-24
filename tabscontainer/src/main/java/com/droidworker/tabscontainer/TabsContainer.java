@@ -6,6 +6,7 @@ import java.util.List;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -602,7 +603,8 @@ public class TabsContainer extends FrameLayout {
             }
 
             if (mIconView != null && icon != null) {
-                DrawableCompat.setTint(icon, isSelected ? mTabSelectedColor : mTabColor);
+                ColorStateList colorStateList = isSelected ? ColorStateList.valueOf(mTabSelectedColor):ColorStateList.valueOf(mTabColor);
+                DrawableCompat.setTintList(icon, colorStateList);
                 mIconView.setImageDrawable(icon);
             }
         }
